@@ -152,6 +152,20 @@ describe("When reduce prop is defined", () => {
     );
   });
 
+  it('can work with falsey values', () => {
+    const option = {value: 0, label: 'No'};
+    const Select = shallowMount(VueSelect, {
+      propsData: {
+        reduce: option => option.value,
+        options: [option, {value: 1, label: 'Yes'}],
+        value: 0,
+      },
+    });
+
+    expect(Select.vm.findOptionFromReducedValue(option)).toEqual(option);
+    expect(Select.vm.selectedValue).toEqual([option]);
+  });
+
   describe("And when a reduced option is a nested object", () => {
     it("can determine if an object is pre-selected", () => {
       const nestedOption = { value: { nested: true }, label: "foo" };

@@ -508,7 +508,7 @@
     created() {
       this.mutableLoading = this.loading;
 
-      if (this.value && this.isTrackingValues) {
+      if (this.value !== null && this.isTrackingValues) {
         this.setInternalValueFromOptions(this.value)
       }
 
