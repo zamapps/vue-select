@@ -13,7 +13,7 @@
               :deselect="deselect"
               :multiple="multiple"
               :disabled="disabled">
-          <span class="vs__selected" v-bind:key="option.index">
+          <span :key="getOptionKey(option)" class="vs__selected">
             <slot name="selected-option" v-bind="normalizeOptionForSlot(option)">
               {{ getOptionLabel(option) }}
             </slot>
@@ -55,7 +55,7 @@
         <li
           role="option"
           v-for="(option, index) in filteredOptions"
-          :key="index"
+          :key="getOptionKey(option)"
           class="vs__dropdown-option"
           :class="{ 'vs__dropdown-option--selected': isOptionSelected(option), 'vs__dropdown-option--highlight': index === typeAheadPointer }"
           @mouseover="typeAheadPointer = index"
@@ -245,12 +245,45 @@
               return console.warn(
                 `[vue-select warn]: Label key "option.${this.label}" does not` +
                 ` exist in options object ${JSON.stringify(option)}.\n` +
-                'http://sagalbot.github.io/vue-select/#ex-labels'
+                'https://vue-select.org/api/props.html#getoptionlabel'
               )
             }
             return option[this.label]
           }
           return option;
+        }
+      },
+
+      /**
+       * Callback to get an option key. If {option}
+       * is an object and has an {id}, returns {option.id}
+       * by default, otherwise tries to serialize {option}
+       * to JSON.
+       *
+       * The key must be unique for an option.
+       *
+       * @type {Function}
+       * @param  {Object || String} option
+       * @return {String}
+       */
+      getOptionKey: {
+        type: Function,
+        default(option) {
+          if (typeof option === 'object' && option.id) {
+            return option.id
+          } else {
+            try {
+              return JSON.stringify(option)
+            } catch(e) {
+              return console.warn(
+                `[vue-select warn]: Could not stringify option ` +
+                `to generate unique key. Please provide'getOptionKey' prop ` +
+                `to return a unique key for each option.\n` +
+                'https://vue-select.org/api/props.html#getoptionkey'
+              )
+              return null
+            }
+          }
         }
       },
 
@@ -437,11 +470,27 @@
       /**
        * Maybe reset the value
        * when options change.
+       * Make sure selected option
+       * is correct.
        * @return {[type]} [description]
        */
       options(val) {
         if (!this.taggable && this.resetOnOptionsChange) {
           this.clearSelection()
+        }
+
+        if (this.value && this.isTrackingValues) {
+          this.setInternalValueFromOptions(this.value)
+        }
+      },
+
+      /**
+       * Make sure to update internal
+       * value if prop changes outside
+       */
+      value(val) {
+        if (this.isTrackingValues) {
+          this.setInternalValueFromOptions(val)
         }
       },
 
@@ -453,24 +502,33 @@
        */
       multiple() {
         this.clearSelection()
-      },
+      }
     },
 
     created() {
       this.mutableLoading = this.loading;
 
-      if (this.$options.propsData.hasOwnProperty('reduce') && this.value) {
-        if (Array.isArray(this.value)) {
-          this.$data._value = this.value.map(value => this.findOptionFromReducedValue(value));
-        } else {
-          this.$data._value = this.findOptionFromReducedValue(this.value);
-        }
+      if (this.value && this.isTrackingValues) {
+        this.setInternalValueFromOptions(this.value)
       }
 
       this.$on('option:created', this.maybePushTag)
     },
 
     methods: {
+      /**
+       * Make sure tracked value is
+       * one option if possible.
+       * @param  {Object|String} value
+       * @return {void}
+       */
+      setInternalValueFromOptions(value) {
+        if (Array.isArray(value)) {
+          this.$data._value = value.map(val => this.findOptionFromReducedValue(val));
+        } else {
+          this.$data._value = this.findOptionFromReducedValue(value);
+        }
+      },
 
       /**
        * Select a given option.
