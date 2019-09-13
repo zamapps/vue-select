@@ -183,7 +183,7 @@ describe("When reduce prop is defined", () => {
 
   });
 
-  it("reacts correctly when value propery changes", () => {
+  it("reacts correctly when value property changes", () => {
     const optionToChangeTo = { id: 1, label: "Foo" };
     const Select = shallowMount(VueSelect, {
       propsData: {
