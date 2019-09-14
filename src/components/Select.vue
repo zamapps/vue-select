@@ -508,7 +508,7 @@
     created() {
       this.mutableLoading = this.loading;
 
-      if (this.value !== null && this.isTrackingValues) {
+      if (typeof this.value !== "undefined" && this.isTrackingValues) {
         this.setInternalValueFromOptions(this.value)
       }
 
