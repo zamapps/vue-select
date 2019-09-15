@@ -51,7 +51,14 @@
     </div>
 
     <transition :name="transition">
-      <ul ref="dropdownMenu" v-if="dropdownOpen" class="vs__dropdown-menu" role="listbox" @mousedown="onMousedown" @mouseup="onMouseUp">
+      <ul
+        ref="dropdownMenu"
+        v-if="dropdownOpen"
+        class="vs__dropdown-menu"
+        role="listbox"
+        @mousedown="onMousedown"
+        @mouseup="onMouseUp"
+      >
         <li
           role="option"
           v-for="(option, index) in filteredOptions"
@@ -300,6 +307,19 @@
       },
 
       /**
+       * Handler attached to the @scroll event of the
+       * dropdown menu.
+       * @type {Function}
+       */
+      // onScroll: {
+      //   type: Function,
+      //   default(event) {
+      //     console.debug(this);
+      //     return this.$emit('scroll', event);
+      //   },
+      // },
+
+      /**
        * Enable/disable creating options from searchEl.
        * @type {Boolean}
        */
@@ -502,7 +522,15 @@
        */
       multiple() {
         this.clearSelection()
-      }
+      },
+
+      dropdownOpen(open) {
+        this.$nextTick(function() {
+          if (open && typeof this.$refs.dropdownMenu !== 'undefined') {
+            this.$refs.dropdownMenu.onscroll = event => this.$emit('scroll', event);
+          }
+        });
+      },
     },
 
     created() {
