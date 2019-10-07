@@ -28,7 +28,7 @@
         </slot>
       </div>
 
-      <div class="vs__actions">
+      <div class="vs__actions" ref="actions">
         <button
           v-show="showClearButton"
           :disabled="disabled"
@@ -620,6 +620,8 @@
           this.$el,
           this.searchEl,
           this.$refs.toggle,
+          this.$refs.actions,
+          this.$refs.selectedOptions,
         ];
 
         if (typeof this.$refs.openIndicator !== 'undefined') {
