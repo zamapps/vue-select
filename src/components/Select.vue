@@ -852,16 +852,10 @@
           case 9:
             //  tab
             return this.onTab();
-        }
-      },
-
-      /**
-       * Search 'input' KeyBoardEvent handler.
-       * @param e {KeyboardEvent}
-       * @return {Function}
-       */
-      onSearchKeyUp (e) {
-        switch (e.keyCode) {
+          case 13:
+            //  enter.prevent
+            e.preventDefault();
+            return this.typeAheadSelect();
           case 27:
             //  esc
             return this.onEscape();
@@ -873,10 +867,6 @@
             //  down.prevent
             e.preventDefault();
             return this.typeAheadDown();
-          case 13:
-            //  enter.prevent
-            e.preventDefault();
-            return this.typeAheadSelect();
         }
       }
     },
@@ -955,7 +945,6 @@
             },
             events: {
               'keydown': this.onSearchKeyDown,
-              'keyup': this.onSearchKeyUp,
               'blur': this.onSearchBlur,
               'focus': this.onSearchFocus,
               'input': (e) => this.search = e.target.value
