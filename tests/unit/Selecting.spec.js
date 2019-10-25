@@ -49,7 +49,7 @@ describe("VS - Selecting Values", () => {
     expect(Select.selectedValue).toEqual(Select.value);
   });
 
-  it("can select an option on tab", () => {
+  fit("can select an option on tab", () => {
     const Select = shallowMount(VueSelect, {
       propsData: {
         selectOnTab: true

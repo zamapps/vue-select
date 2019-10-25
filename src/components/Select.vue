@@ -467,6 +467,11 @@
       searchInputQuerySelector: {
         type: String,
         default: '[type=search]'
+      },
+
+      handlers: {
+        type: Function,
+        default: (handlers, vm) => handlers,
       }
     },
 
@@ -845,33 +850,34 @@
        * @return {Function}
        */
       onSearchKeyDown (e) {
-        switch (e.keyCode) {
-          case 8:
-            //  delete
-            return this.maybeDeleteValue();
-          case 9:
-            //  tab
-            return this.onTab();
-          case 13:
-            //  enter.prevent
-            e.preventDefault();
-            return this.typeAheadSelect();
-          case 27:
-            //  esc
-            return this.onEscape();
-          case 38:
-            //  up.prevent
-            e.preventDefault();
-            return this.typeAheadUp();
-          case 40:
-            //  down.prevent
-            e.preventDefault();
-            return this.typeAheadDown();
+        if (this.delegate.search.hasOwnProperty(e.keyCode)) {
+          return this.delegate.search[e.keyCode](e);
         }
       }
     },
 
     computed: {
+      delegate () {
+        return this.handlers({
+          search: {
+            8: e => this.maybeDeleteValue(), //  delete
+            9: e => this.onTab(), //  tab
+            13: e => { //  enter.prevent
+              e.preventDefault();
+              return this.typeAheadSelect();
+            },
+            27: e => this.onEscape(), //  esc
+            38: e => { //  up.prevent
+              e.preventDefault();
+              return this.typeAheadUp();
+            },
+            40: e => { //  down.prevent
+              e.preventDefault();
+              return this.typeAheadDown();
+            },
+          }
+        }, this);
+      },
 
       /**
        * Determine if the component needs to
