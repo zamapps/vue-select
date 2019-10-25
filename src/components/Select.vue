@@ -390,7 +390,7 @@
             newOption = {[this.label]: newOption}
           }
 
-          this.$emit('option:created', newOption)
+          this.$emit('option:created', newOption, this)
           return newOption
         }
       },
@@ -701,7 +701,7 @@
        */
       closeSearchOptions(){
         this.open = false
-        this.$emit('search:blur')
+        this.$emit('search:blur', this)
       },
 
       /**
@@ -802,7 +802,7 @@
        */
       onSearchFocus() {
         this.open = true
-        this.$emit('search:focus')
+        this.$emit('search:focus', this)
       },
 
       /**

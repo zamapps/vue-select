@@ -86,7 +86,7 @@ describe("Toggling Dropdown", () => {
     Select.vm.onSearchBlur();
 
     expect(Select.vm.open).toEqual(false);
-    expect(spy).toHaveBeenCalledWith("search:blur");
+    expect(spy).toHaveBeenCalledWith("search:blur", Select.vm);
   });
 
   it("will open the dropdown and emit the search:focus event from onSearchFocus", () => {
@@ -96,7 +96,7 @@ describe("Toggling Dropdown", () => {
     Select.vm.onSearchFocus();
 
     expect(Select.vm.open).toEqual(true);
-    expect(spy).toHaveBeenCalledWith("search:focus");
+    expect(spy).toHaveBeenCalledWith("search:focus", Select.vm);
   });
 
   it("will close the dropdown on escape, if search is empty", () => {
