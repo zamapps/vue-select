@@ -469,9 +469,19 @@
         default: '[type=search]'
       },
 
-      handlers: {
+      /**
+       * Used to modify the default keydown events map
+       * for the search input. Can be used to implement
+       * custom behaviour for key presses.
+       */
+      mapKeydown: {
         type: Function,
-        default: (handlers, vm) => handlers,
+        /**
+         * @param map {Object}
+         * @param vm {Vue/Component}
+         * @return {Object}
+         */
+        default: (map, vm) => map,
       }
     },
 
@@ -845,40 +855,42 @@
       },
 
       /**
-       * Search 'input' KeyBoardEvent handler.
+       * Search <input> KeyBoardEvent handler.
        * @param e {KeyboardEvent}
        * @return {Function}
        */
       onSearchKeyDown (e) {
-        if (this.delegate.search.hasOwnProperty(e.keyCode)) {
-          return this.delegate.search[e.keyCode](e);
+        const handlers = this.mapKeydown({
+          //  delete
+          8: e => this.maybeDeleteValue(),
+          //  tab
+          9: e => this.onTab(),
+          //  enter.prevent
+          13: e => {
+            e.preventDefault();
+            return this.typeAheadSelect();
+          },
+          //  esc
+          27: e => this.onEscape(),
+          //  up.prevent
+          38: e => {
+            e.preventDefault();
+            return this.typeAheadUp();
+          },
+          //  down.prevent
+          40: e => {
+            e.preventDefault();
+            return this.typeAheadDown();
+          },
+        }, this);
+
+        if (typeof handlers[e.keyCode] === 'function') {
+          return handlers[e.keyCode](e);
         }
       }
     },
 
     computed: {
-      delegate () {
-        return this.handlers({
-          search: {
-            8: e => this.maybeDeleteValue(), //  delete
-            9: e => this.onTab(), //  tab
-            13: e => { //  enter.prevent
-              e.preventDefault();
-              return this.typeAheadSelect();
-            },
-            27: e => this.onEscape(), //  esc
-            38: e => { //  up.prevent
-              e.preventDefault();
-              return this.typeAheadUp();
-            },
-            40: e => { //  down.prevent
-              e.preventDefault();
-              return this.typeAheadDown();
-            },
-          }
-        }, this);
-      },
-
       /**
        * Determine if the component needs to
        * track the state of values internally.

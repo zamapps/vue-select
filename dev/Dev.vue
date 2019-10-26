@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <sandbox hide-help v-slot="config">
-      <v-select v-bind="config" />
+      <v-select taggable multiple no-drop :map-keydown="handlers"/>
     </sandbox>
   </div>
 </template>
@@ -14,6 +14,23 @@ import Sandbox from '../docs/.vuepress/components/Sandbox';
 
 export default {
   components: {Sandbox, vSelect},
+  methods: {
+    handlers (map, vm) {
+      const createTag = e => {
+        e.preventDefault();
+        vm.typeAheadSelect();
+        vm.searchEl.focus();
+      };
+
+      return {
+        ...map,
+        9: createTag,
+        13: createTag,
+        32: createTag,
+        188: createTag,
+      };
+    },
+  },
 };
 </script>
 
