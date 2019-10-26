@@ -25,7 +25,7 @@ describe("Selectable prop", () => {
     expect(Select.vm.selectedValue).toEqual([]);
   });
 
-  it("should skip non-selectable option on down arrow keyUp", () => {
+  it("should skip non-selectable option on down arrow keyDown", () => {
     const Select = selectWithProps({
       options: ["one", "two", "three"],
       selectable: (option) => option !== "two"
@@ -33,12 +33,12 @@ describe("Selectable prop", () => {
 
     Select.vm.typeAheadPointer = 1;
 
-    Select.find({ ref: "search" }).trigger("keyup.down");
+    Select.find({ ref: "search" }).trigger("keydown.down");
 
     expect(Select.vm.typeAheadPointer).toEqual(2);
   })
 
-  it("should skip non-selectable option on up arrow keyUp", () => {
+  it("should skip non-selectable option on up arrow keyDown", () => {
     const Select = selectWithProps({
       options: ["one", "two", "three"],
       selectable: (option) => option !== "two"
@@ -46,7 +46,7 @@ describe("Selectable prop", () => {
 
     Select.vm.typeAheadPointer = 2;
 
-    Select.find({ ref: "search" }).trigger("keyup.up");
+    Select.find({ ref: "search" }).trigger("keydown.up");
 
     expect(Select.vm.typeAheadPointer).toEqual(0);
   })
