@@ -1,5 +1,6 @@
 import { mount, shallowMount } from "@vue/test-utils";
 import VueSelect from "../../src/components/Select.vue";
+import { mountDefault } from '../helpers';
 
 describe("VS - Selecting Values", () => {
   let defaultProps;
@@ -195,7 +196,7 @@ describe("VS - Selecting Values", () => {
     expect(Select.vm.isOptionSelected("foo")).toEqual(true);
   });
 
-  describe("change Event", () => {
+  describe("input Event", () => {
     it("will trigger the input event when the selection changes", () => {
       const Select = shallowMount(VueSelect);
       Select.vm.select("bar");
@@ -208,6 +209,23 @@ describe("VS - Selecting Values", () => {
       });
       Select.vm.select("bar");
       expect(Select.emitted("input")[0]).toEqual([["foo", "bar"]]);
+    });
+  });
+
+  describe('selected classes', () => {
+    it("adds the vs__selected class by default", () => {
+      const Select = mountDefault({value: 'one'});
+      expect(Select. contains('.vs__selected')).toBe(true);
+    });
+
+    it("can add a custom class using the getSelectedOptionClasses prop", () => {
+      const Select = mountDefault({
+        value: 'one',
+        getSelectedOptionClasses: option => ['vs__selected', `vs__selected--${option}`]
+      });
+      
+      expect(Select. contains('.vs__selected')).toBe(true);
+      expect(Select. contains('.vs__selected--one')).toBe(true);
     });
   });
 });
