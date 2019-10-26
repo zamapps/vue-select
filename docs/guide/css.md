@@ -34,4 +34,25 @@ all instances of Vue Select, or add your own classname if you just want to affec
 
 <<< @/.vuepress/components/CssSpecificity.vue
 
+## Dropdown Transition
 
+By default, the dropdown transitions with a `.15s` cubic-bezier opacity fade in/out. The component
+uses the [VueJS transition system](https://vuejs.org/v2/guide/transitions.html). By default, the
+ transition name is `vs__fade`. There's a couple ways to override or change this transition.
+
+1. Use the `transition` prop. Applying this prop will change the name of the animation classes and
+negate the default CSS. If you want to remove it entirely, you can set it to an empty string.
+
+```html
+<v-select transition="" />
+```
+
+2. You can also override the default CSS for the `vs__fade` transition. Again, if you 
+wanted to eliminate the transition entirely:
+
+```css
+.vs__fade-enter-active,
+.vs__fade-leave-active {
+    transition: none;
+}
+```
