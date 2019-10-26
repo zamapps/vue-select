@@ -221,10 +221,10 @@ describe("VS - Selecting Values", () => {
     it("can add a custom class using the getSelectedOptionClasses prop", () => {
       const Select = mountDefault({
         value: 'one',
-        getSelectedOptionClasses: option => ['vs__selected', `vs__selected--${option}`]
+        getSelectedOptionClasses: (option, defaults) => [...defaults, `vs__selected--${option}`]
       });
-      
-      expect(Select. contains('.vs__selected')).toBe(true);
+
+      expect(Select.contains('.vs__selected')).toBe(true);
       expect(Select. contains('.vs__selected--one')).toBe(true);
     });
   });
