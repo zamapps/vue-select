@@ -114,12 +114,13 @@ module.exports = {
           ],
         },
         {
-          title: 'Digging Deeper',
+          title: 'Functionality',
           collapsable: false,
           children: [
             ['guide/validation', 'Validation'],
             ['guide/vuex', 'Vuex'],
             ['guide/ajax', 'AJAX'],
+            ['guide/tagging', 'Tagging'],
           ],
         },
         {

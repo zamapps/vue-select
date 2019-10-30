@@ -587,13 +587,14 @@
        * @return {void}
        */
       onAfterSelect(option) {
-        if (this.closeOnSelect) {
-          this.open = !this.open
-          this.searchEl.blur()
+        const shouldClose = !this.taggable && !this.multiple;
+        if (this.closeOnSelect && shouldClose) {
+          this.open = !this.open;
+          this.searchEl.blur();
         }
 
         if (this.clearSearchOnSelect) {
-          this.search = ''
+          this.search = '';
         }
       },
 
