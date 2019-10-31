@@ -52,12 +52,8 @@
 
     <transition :name="transition">
       <ul ref="dropdownMenu" v-if="dropdownOpen" class="vs__dropdown-menu" role="listbox" @mousedown.prevent="onMousedown" @mouseup="onMouseUp">
-        <slot name="option" v-for="(option, index) in normalizedFilteredOptions">
-            <li
-              role="option"
-              v-bind="getDropdownOptionScope(option, index).attributes"
-              v-on="getDropdownOptionScope(option, index).events"
-            >{{ getOptionLabel(option) }}</li>
+        <slot name="option" v-for="scope in normalizedFilteredOptions" v-bind="scope">
+          <li v-bind="scope.attributes" v-on="scope.events">{{ getOptionLabel(scope.option) }}</li>
         </slot>
         <li v-if="!filteredOptions.length" class="vs__no-options" @mousedown.stop="">
           <slot name="no-options">Sorry, no matching options.</slot>
@@ -1073,7 +1069,7 @@
       },
 
       normalizedFilteredOptions() {
-        return this.filteredOptions.map(option => this.normalizeOptionForSlot(option));
+        return this.filteredOptions.map((option, index) => this.getDropdownOptionScope(this.normalizeOptionForSlot(option), index));
       },
 
       /**
