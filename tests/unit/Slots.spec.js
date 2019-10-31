@@ -1,18 +1,6 @@
 import { mountDefault } from '../helpers';
 
 describe('Scoped Slots', () => {
-  it('receives an option object to the selected-option-container slot', () => {
-    const Select = mountDefault(
-      {value: 'one'},
-      {
-        scopedSlots: {
-          'selected-option-container': `<span slot="selected-option-container" slot-scope="{option}">{{ option.label }}</span>`,
-        },
-      });
-
-    expect(Select.find({ ref: 'selectedOptions' }).text()).toEqual('one')
-  });
-
   it('receives an option object to the selected-option slot', () => {
     const Select = mountDefault(
       {value: 'one'},

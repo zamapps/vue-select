@@ -7,24 +7,19 @@
     <div ref="toggle" @mousedown.prevent="toggleDropdown" class="vs__dropdown-toggle">
 
       <div class="vs__selected-options" ref="selectedOptions">
-        <slot v-for="option in selectedValue"
-              name="selected-option-container"
-              :option="normalizeOptionForSlot(option)"
-              :deselect="deselect"
-              :multiple="multiple"
-              :disabled="disabled">
-          <span :key="getOptionKey(option)" class="vs__selected">
-            <slot name="selected-option" v-bind="normalizeOptionForSlot(option)">
-              {{ getOptionLabel(option) }}
-            </slot>
-            <button v-if="multiple" :disabled="disabled" @click="deselect(option)" type="button" class="vs__deselect" aria-label="Deselect option">
-              <component :is="childComponents.Deselect" />
-            </button>
+        <slot name="selected-option" v-for="option in scopedValues" v-bind="option">
+          <span :class="option.bindings.class">
+            {{ option.label }}
+            <component
+              :is="option.deselect.component"
+              v-bind="option.deselect.bindings"
+              v-on="option.deselect.events"
+            />
           </span>
         </slot>
 
         <slot name="search" v-bind="scope.search">
-          <input class="vs__search" v-bind="scope.search.attributes" v-on="scope.search.events">
+          <input v-bind="scope.search.attributes" v-on="scope.search.events">
         </slot>
       </div>
 
@@ -51,9 +46,16 @@
     </div>
 
     <transition :name="transition">
-      <ul ref="dropdownMenu" v-if="dropdownOpen" class="vs__dropdown-menu" role="listbox" @mousedown.prevent="onMousedown" @mouseup="onMouseUp">
-        <slot name="option" v-for="scope in normalizedFilteredOptions" v-bind="scope">
-          <li v-bind="scope.attributes" v-on="scope.events">{{ getOptionLabel(scope.option) }}</li>
+      <ul
+        ref="dropdownMenu"
+        v-if="dropdownOpen"
+        class="vs__dropdown-menu"
+        role="listbox"
+        @mousedown.prevent="onMousedown"
+        @mouseup="onMouseUp"
+      >
+        <slot name="option" v-for="{attributes, events, option} in scopedOptions" v-bind="{attributes, events, option}">
+          <li v-bind="attributes" v-on="events">{{ getOptionLabel(option) }}</li>
         </slot>
         <li v-if="!filteredOptions.length" class="vs__no-options" @mousedown.stop="">
           <slot name="no-options">Sorry, no matching options.</slot>
@@ -314,6 +316,50 @@
             },
           };
         },
+      },
+
+      getSelectedOptionScope: {
+        type: Function,
+        default(option, index) {
+          return {
+            label: this.getOptionLabel(option),
+            deselect: this.getOptionDeselectScope(option),
+            bindings: {
+              key: this.getOptionKey(option),
+              option: this.normalizeOptionForSlot(option),
+              deselect: this.deselect,
+              multiple: this.multiple,
+              class: "vs__selected",
+            },
+            events: {
+              'mouseover': () => this.selectable(option) ? this.typeAheadPointer = index : null,
+              'mousedown': e => {
+                e.preventDefault();
+                e.stopPropagation();
+                return this.selectable(option) ? this.select(option) : null;
+              }
+            },
+          };
+        },
+      },
+
+      getOptionDeselectScope: {
+        type: Function,
+        default(option) {
+          return {
+            component: childComponents.Deselect,
+            bindings: {
+              'type': 'button',
+              'class': 'vs__deselect',
+              'aria-label': `Deselect ${this.getOptionLabel(option)}`,
+              'disabled': this.disabled,
+              'multiple': this.multiple,
+            },
+            events: {
+              'click': () => this.deselect(option),
+            }
+          }
+        }
       },
 
       /**
@@ -917,6 +963,10 @@
         return [];
       },
 
+      scopedValues() {
+        return this.selectedValue.map(option => this.getSelectedOptionScope(option));
+      },
+
       /**
        * The options available to be chosen
        * from the dropdown, including any
@@ -939,20 +989,28 @@
       },
 
       /**
-       * The object to be bound to the $slots.search scoped slot.
+       * Each key of this object is the name of a scoped slot
+       * within the component. The value of that key is the
+       * object that will be passed as the scope for the
+       * slot. There are a few slots that take place in
+       * v-for loops – these slots can't be captured in
+       * a computed prop, so there's specific methods
+       * for each of those slots.
+       *
        * @returns {Object}
        */
       scope () {
         return {
           search: {
             attributes: {
+              'class': 'vs__search',
               'disabled': this.disabled,
               'placeholder': this.searchPlaceholder,
               'tabindex': this.tabindex,
               'readonly': !this.searchable,
               'id': this.inputId,
               'aria-expanded': this.dropdownOpen,
-              'aria-label': 'Search for option',
+              'aria-label': 'Search for an option',
               'ref': 'search',
               'role': 'combobox',
               'type': 'search',
@@ -1068,7 +1126,7 @@
         return options
       },
 
-      normalizedFilteredOptions() {
+      scopedOptions() {
         return this.filteredOptions.map((option, index) => this.getDropdownOptionScope(this.normalizeOptionForSlot(option), index));
       },
 
