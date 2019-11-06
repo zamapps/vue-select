@@ -1,19 +1,26 @@
 <template>
-  <div id="app">
-    <sandbox hide-help v-slot="config">
-      <v-select v-bind="config" />
-    </sandbox>
+  <div id="app" class="font-sans px-5 py-5">
+<!--    <v-select :options="countries"/>-->
+    <ListSelect :options="countries" />
+<!--    <paginated />-->
   </div>
 </template>
 
 <script>
 import vSelect from '../src/components/Select';
+import ListSelect from './ListSelect';
+import Paginated from './Paginated';
 import Sandbox from '../docs/.vuepress/components/Sandbox';
-// import countries from '../docs/.vuepress/data/countryCodes';
-// import books from '../docs/.vuepress/data/books';
+
+import countries from '../docs/.vuepress/data/countryCodes';
+import books from '../docs/.vuepress/data/books';
 
 export default {
-  components: {Sandbox, vSelect},
+  components: {vSelect, Sandbox, ListSelect, Paginated},
+  computed: {
+    countries: () => countries,
+    books: () => books,
+  },
 };
 </script>
 
@@ -27,6 +34,8 @@ export default {
 
   #app {
     height: 100%;
+    max-width: 50rem;
+    margin: 0 auto;
   }
 
   hr {
