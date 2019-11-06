@@ -1,7 +1,7 @@
 <template>
   <div id="app" class="font-sans px-5 py-5">
-<!--    <v-select :options="countries"/>-->
-    <ListSelect :options="countries" />
+    <v-select :options="countries"/>
+<!--    <ListSelect :options="countries" />-->
 <!--    <paginated />-->
   </div>
 </template>
@@ -24,7 +24,9 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+  @import "../src/scss/vue-select";
+
   html,
   body {
     margin: 0;
