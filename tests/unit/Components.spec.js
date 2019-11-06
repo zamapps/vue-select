@@ -6,7 +6,7 @@ describe('Components API', () => {
   it('swap the Deselect component', () => {
     const Deselect = Vue.component('Deselect', {
       render (createElement) {
-        return createElement('button', 'remove');
+        return createElement('span', 'remove');
       },
     });
 

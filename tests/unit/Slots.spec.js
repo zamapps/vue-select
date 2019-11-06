@@ -6,7 +6,7 @@ describe('Scoped Slots', () => {
       {value: 'one'},
       {
         scopedSlots: {
-          'selected-option': `<span slot="selected-option" slot-scope="option">{{ option.label }}</span>`,
+          'selected-option': `<span class="vs__selected" slot="selected-option" slot-scope="option">{{ option.label }}</span>`,
         },
       });
 

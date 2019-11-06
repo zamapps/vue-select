@@ -1,13 +1,22 @@
-import { selectWithProps } from "../helpers";
+import { mount } from '@vue/test-utils';
+import { selectWithProps } from '../helpers';
+import VueSelect from '../../src/components/Select.vue';
 
 describe("Removing values", () => {
   it("can remove the given tag when its close icon is clicked", () => {
-    const Select = selectWithProps({ multiple: true });
-    Select.vm.$data._value = 'one';
+    const Select = mount(VueSelect, {
+      propsData: {
+        multiple: true,
+        options: ['foo', 'bar'],
+        value: 'foo',
+      },
+    });
 
-    Select.find(".vs__deselect").trigger("click");
-    expect(Select.emitted().input).toEqual([[[]]]);
-    expect(Select.vm.selectedValue).toEqual([]);
+    const deselect = jest.spyOn(Select.vm, 'deselect');
+
+    Select.find("button.vs__deselect").trigger("click");
+
+    expect(deselect).toHaveBeenCalled();
   });
 
   it("should not remove tag when close icon is clicked and component is disabled", () => {
@@ -55,36 +64,44 @@ describe("Removing values", () => {
       });
 
       expect(Select.vm.showClearButton).toEqual(true);
+      expect(Select.find('.vs__clear').isVisible()).toBe(true);
     });
 
     it("should not be displayed on multiple select", () => {
-      const Select = selectWithProps({
-        options: ["foo", "bar"],
-        value: "foo",
-        multiple: true
+      const Select = mount(VueSelect, {
+        propsData: {
+          multiple: true,
+          options: ['foo', 'bar'],
+          value: 'foo',
+        },
       });
 
       expect(Select.vm.showClearButton).toEqual(false);
+      expect(Select.find('.vs__clear').isVisible()).toBe(false);
     });
 
-    it("should remove selected value when clicked", () => {
-      const Select = selectWithProps({
-        options: ["foo", "bar"],
+    it("should remove selected value when clicked", async () => {
+      const Select = mount(VueSelect, {
+        propsData: {
+          options: ['foo', 'bar'],
+          value: 'foo',
+        },
       });
-      Select.vm.$data._value = 'foo';
 
-      expect(Select.vm.selectedValue).toEqual(["foo"]);
-      Select.find("button.vs__clear").trigger("click");
+      const spy = jest.spyOn(Select.vm, 'clearSelection');
 
-      expect(Select.emitted().input).toEqual([[null]]);
-      expect(Select.vm.selectedValue).toEqual([]);
+      Select.find('button.vs__clear').trigger("click");
+
+      expect(spy).toHaveBeenCalled();
     });
 
     it("should be disabled when component is disabled", () => {
-      const Select = selectWithProps({
-        options: ["foo", "bar"],
-        value: "foo",
-        disabled: true
+      const Select = mount(VueSelect, {
+        propsData: {
+          disabled: true,
+          options: ['foo', 'bar'],
+          value: 'foo',
+        },
       });
 
       expect(Select.find("button.vs__clear").attributes().disabled).toEqual(

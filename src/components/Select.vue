@@ -3,13 +3,14 @@
     <div ref="toggle" @mousedown.prevent="toggleDropdown" class="vs__dropdown-toggle">
 
       <div class="vs__selected-options" ref="selectedOptions">
-        <slot name="selected-option" v-for="option in scopedValues" v-bind="option">
-          <span :class="option.bindings.class">
-            {{ option.label }}
+        <slot name="selected-option" v-for="selected in scopedValues" v-bind="selected">
+          <span :class="selected.bindings.class">
+            {{ selected.label }}
             <component
-              :is="option.deselect.component"
-              v-bind="option.deselect.bindings"
-              v-on="option.deselect.events"
+              :is="selected.deselect.component"
+              v-if="selected.deselect.bindings.multiple"
+              v-bind="selected.deselect.bindings"
+              v-on="selected.deselect.events"
             />
           </span>
         </slot>
@@ -20,23 +21,24 @@
       </div>
 
       <div class="vs__actions">
-        <button
-          v-show="showClearButton"
-          :disabled="disabled"
-          @click="clearSelection"
-          type="button"
-          class="vs__clear"
-          title="Clear selection"
-        >
-          <component :is="childComponents.Deselect" />
-        </button>
+        <slot name="clear">
+          <component
+            :is="scope.clear.component"
+            v-bind="scope.clear.bindings"
+            v-on="scope.clear.events"
+          />
+        </slot>
 
         <slot name="open-indicator" v-bind="scope.openIndicator">
-          <component :is="childComponents.OpenIndicator" v-if="!noDrop" v-bind="scope.openIndicator.attributes"/>
+          <component
+            v-if="!noDrop"
+            :is="childComponents.OpenIndicator"
+            v-bind="scope.openIndicator.attributes"
+          />
         </slot>
 
         <slot name="spinner" v-bind="scope.spinner">
-          <div class="vs__spinner" v-show="mutableLoading">Loading...</div>
+          <div :class="scope.spinner.bindings.class" v-show="mutableLoading">Loading...</div>
         </slot>
       </div>
     </div>
@@ -50,8 +52,8 @@
         @mousedown.prevent="onMousedown"
         @mouseup="onMouseUp"
       >
-        <slot name="option" v-for="{attributes, events, option} in scopedOptions" v-bind="{attributes, events, option}">
-          <li v-bind="attributes" v-on="events">{{ getOptionLabel(option) }}</li>
+        <slot name="option" v-for="option in scopedOptions" v-bind="option">
+          <li v-bind="option.attributes" v-on="option.events">{{ option.label }}</li>
         </slot>
         <li v-if="!filteredOptions.length" class="vs__no-options" @mousedown.stop="">
           <slot name="no-options">Sorry, no matching options.</slot>
@@ -269,30 +271,32 @@
        */
       getOptionKey: {
         type: Function,
-        default(option) {
+        default (option) {
           if (typeof option === 'object' && option.id) {
-            return option.id
+            return option.id;
           } else {
             try {
-              return JSON.stringify(option)
-            } catch(e) {
+              return JSON.stringify(option);
+            } catch (e) {
               return console.warn(
                 `[vue-select warn]: Could not stringify option ` +
                 `to generate unique key. Please provide'getOptionKey' prop ` +
                 `to return a unique key for each option.\n` +
-                'https://vue-select.org/api/props.html#getoptionkey'
-              )
-              return null
+                'https://vue-select.org/api/props.html#getoptionkey',
+              );
             }
           }
-        }
+        },
       },
-      
-      getDropdownOptionScope: {
+
+      getOptionScope: {
         type: Function,
-        default(option, index) {
+        default (option, index) {
+          const optionProperties = typeof option === 'object' ? {...option} : {};
+
           return {
-            option,
+            ...optionProperties,
+            label: this.getOptionLabel(option),
             attributes: {
               key: this.getOptionKey(option),
               class: {
@@ -308,7 +312,7 @@
                 e.preventDefault();
                 e.stopPropagation();
                 return this.selectable(option) ? this.select(option) : null;
-              }
+              },
             },
           };
         },
@@ -316,7 +320,7 @@
 
       getSelectedOptionScope: {
         type: Function,
-        default(option, index) {
+        default (option, index) {
           return {
             label: this.getOptionLabel(option),
             deselect: this.getOptionDeselectScope(option),
@@ -325,7 +329,7 @@
               option: this.normalizeOptionForSlot(option),
               deselect: this.deselect,
               multiple: this.multiple,
-              class: "vs__selected",
+              class: 'vs__selected',
             },
             events: {
               'mouseover': () => this.selectable(option) ? this.typeAheadPointer = index : null,
@@ -333,7 +337,7 @@
                 e.preventDefault();
                 e.stopPropagation();
                 return this.selectable(option) ? this.select(option) : null;
-              }
+              },
             },
           };
         },
@@ -341,7 +345,7 @@
 
       getOptionDeselectScope: {
         type: Function,
-        default(option) {
+        default (option) {
           return {
             component: childComponents.Deselect,
             bindings: {
@@ -353,9 +357,9 @@
             },
             events: {
               'click': () => this.deselect(option),
-            }
-          }
-        }
+            },
+          };
+        },
       },
 
       /**
@@ -1017,11 +1021,38 @@
               'keydown': this.onSearchKeyDown,
               'blur': this.onSearchBlur,
               'focus': this.onSearchFocus,
-              'input': (e) => this.search = e.target.value
+              'input': (e) => this.search = e.target.value,
+            },
+          },
+          clear: {
+            component: this.childComponents.Deselect,
+            bindings: {
+              'disabled': this.disabled,
+              'type': 'button',
+              'class': 'vs__clear',
+              'title': 'Clear Selection',
+              'style': { 'display': this.showClearButton ? 'block': 'none' }
+            },
+            events: {
+              'click': () => this.clearSelection(),
+            },
+          },
+          noOptions: {
+            text: 'Sorry, no options',
+            options: this.scopedOptions,
+            search: this.search,
+            attributes: {
+              class: 'vs__no-options',
+            },
+            events: {
+              mousedown: e => e.stopPropagation(),
             },
           },
           spinner: {
-            loading: this.mutableLoading
+            loading: this.mutableLoading,
+            bindings: {
+              'class': 'vs__spinner',
+            },
           },
           openIndicator: {
             attributes: {
@@ -1123,7 +1154,7 @@
       },
 
       scopedOptions() {
-        return this.filteredOptions.map((option, index) => this.getDropdownOptionScope(this.normalizeOptionForSlot(option), index));
+        return this.filteredOptions.map((option, index) => this.getOptionScope(option, index));
       },
 
       /**

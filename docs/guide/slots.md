@@ -1,22 +1,13 @@
-::: tip 🚧
-This section of the guide is a work in progress! Check back soon for an update.
-Vue Select currently offers quite a few scoped slots, and you can check out the 
-[API Docs for Slots](../api/slots.md) in the meantime while a good guide is put together.
-:::
+## Scoped Slots
 
-#### Scoped Slot `option`
+Vue Select offers a number of scoped slots that allow you to customize many parts of the 
+component for your app. You can make small adjustments with slots, or you can swap out all elements 
+of the default UI for your own.
 
-vue-select provides the scoped `option` slot in order to create custom dropdown templates.
+All of Vue Selects scoped slots follow a similar pattern. Each slot is scoped with an object with at
+least two keys: `bindings` and `events`. 
 
-```html
-<v-select :options="options" label="title">
-    <template v-slot:option="option">
-        <span :class="option.icon"></span>
-        {{ option.title }}
-    </template>
-  </v-select>
-``` 
+`bindings {Object}` Data that is bound to an element within the slot (HTML attributes, classes, etc)
+`events {Object}` Event handlers for elements within the slot
+    
 
-Using the `option` slot with props `"option"` provides the current option variable to the template.
-
-<CodePen url="NXBwYG" height="500"/>
