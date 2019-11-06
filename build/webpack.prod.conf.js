@@ -3,9 +3,12 @@ const merge = require('webpack-merge');
 const baseWebpackConfig = require('./webpack.base.conf');
 
 module.exports = merge(baseWebpackConfig, {
-  entry: './src/index.js',
+  entry: {
+    'vue-select': './src/index.js',
+    'renderless': './src/components/Renderless.vue',
+  },
   output: {
-    filename: 'vue-select.js',
+    filename: '[name].js',
     library: 'VueSelect',
     libraryTarget: 'umd',
     globalObject: 'typeof self !== \'undefined\' ? self : this',
@@ -21,5 +24,5 @@ module.exports = merge(baseWebpackConfig, {
         },
       }),
     ],
-  }
+  },
 });

@@ -59,7 +59,7 @@ module.exports = {
       'process.env': env,
     }),
     new MiniCssExtractPlugin({
-      filename: 'vue-select.css',
+      filename: '[name].css',
     }),
     new VueLoaderPlugin(),
   ],
