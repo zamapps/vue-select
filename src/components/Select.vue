@@ -302,6 +302,7 @@
 
       /**
        * Select the current value if selectOnTab is enabled
+       * @deprecated
        */
       onTab: {
         type: Function,
@@ -449,10 +450,20 @@
       /**
        * When true, hitting the 'tab' key will select the current select value
        * @type {Boolean}
+       * @deprecated
        */
       selectOnTab: {
         type: Boolean,
         default: false
+      },
+
+      /**
+       * Keycodes that will select the current option.
+       * @type Array
+       */
+      selectOnKeyCodes: {
+        type: Array,
+        default: () => [13],
       },
 
       /**
@@ -860,16 +871,16 @@
        * @return {Function}
        */
       onSearchKeyDown (e) {
-        const handlers = this.mapKeydown({
+        const preventAndSelect = e => {
+          e.preventDefault();
+          return this.typeAheadSelect();
+        };
+
+        const defaults = {
           //  delete
           8: e => this.maybeDeleteValue(),
           //  tab
           9: e => this.onTab(),
-          //  enter.prevent
-          13: e => {
-            e.preventDefault();
-            return this.typeAheadSelect();
-          },
           //  esc
           27: e => this.onEscape(),
           //  up.prevent
@@ -882,7 +893,11 @@
             e.preventDefault();
             return this.typeAheadDown();
           },
-        }, this);
+        };
+
+        this.selectOnKeyCodes.forEach(keyCode => defaults[keyCode] = preventAndSelect);
+
+        const handlers = this.mapKeydown(defaults, this);
 
         if (typeof handlers[e.keyCode] === 'function') {
           return handlers[e.keyCode](e);
