@@ -41,4 +41,34 @@ describe('Custom Keydown Handlers', () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
+  describe('CompositionEvent support', () => {
+
+    it('will not select a value with enter if the user is composing', () => {
+      const Select = mountDefault();
+      const spy = jest.spyOn(Select.vm, 'typeAheadSelect');
+
+      Select.find({ref: 'search'}).trigger('compositionstart');
+      Select.find({ref: 'search'}).trigger('keydown.enter');
+      expect(spy).toHaveBeenCalledTimes(0);
+
+      Select.find({ref: 'search'}).trigger('compositionend');
+      Select.find({ref: 'search'}).trigger('keydown.enter');
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('will not select a value with tab if the user is composing', () => {
+      const Select = mountDefault({selectOnTab: true});
+      const spy = jest.spyOn(Select.vm, 'typeAheadSelect');
+
+      Select.find({ref: 'search'}).trigger('compositionstart');
+      Select.find({ref: 'search'}).trigger('keydown.tab');
+      expect(spy).toHaveBeenCalledTimes(0);
+
+      Select.find({ref: 'search'}).trigger('compositionend');
+      Select.find({ref: 'search'}).trigger('keydown.tab');
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+  });
+
 });

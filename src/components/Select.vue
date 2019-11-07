@@ -79,6 +79,9 @@
   import ajax from '../mixins/ajax'
   import childComponents from './childComponents';
 
+  /**
+   * @name VueSelect
+   */
   export default {
     components: {...childComponents},
 
@@ -302,12 +305,12 @@
 
       /**
        * Select the current value if selectOnTab is enabled
-       * @deprecated
+       * @deprecated since 3.3
        */
       onTab: {
         type: Function,
         default: function () {
-          if (this.selectOnTab) {
+          if (this.selectOnTab && !this.isComposing) {
             this.typeAheadSelect();
           }
         },
@@ -450,7 +453,7 @@
       /**
        * When true, hitting the 'tab' key will select the current select value
        * @type {Boolean}
-       * @deprecated
+       * @deprecated since 3.3 - use selectOnKeyCodes instead
        */
       selectOnTab: {
         type: Boolean,
@@ -500,6 +503,7 @@
       return {
         search: '',
         open: false,
+        isComposing: false,
         pushedTags: [],
         _value: [] // Internal value managed by Vue Select if no `value` prop is passed
       }
@@ -873,7 +877,7 @@
       onSearchKeyDown (e) {
         const preventAndSelect = e => {
           e.preventDefault();
-          return this.typeAheadSelect();
+          return !this.isComposing && this.typeAheadSelect();
         };
 
         const defaults = {
@@ -977,10 +981,12 @@
               'value': this.search,
             },
             events: {
+              'compositionstart': () => this.isComposing = true,
+              'compositionend': () => this.isComposing = false,
               'keydown': this.onSearchKeyDown,
               'blur': this.onSearchBlur,
               'focus': this.onSearchFocus,
-              'input': (e) => this.search = e.target.value
+              'input': (e) => this.search = e.target.value,
             },
           },
           spinner: {
