@@ -102,12 +102,5 @@
       "html",
       "text-summary"
     ]
-  },
-  "bundlewatch": {
-    "files": [
-      {
-        "path": "dist/*"
-      }
-    ]
   }
 }
