@@ -492,7 +492,7 @@
         type: Function,
         /**
          * @param map {Object}
-         * @param vm {Vue/Component}
+         * @param vm {VueSelect}
          * @return {Object}
          */
         default: (map, vm) => map,

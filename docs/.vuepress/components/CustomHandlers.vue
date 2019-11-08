@@ -1,10 +1,10 @@
 <template>
   <v-select
-    taggable
-    multiple
-    no-drop
-    :map-keydown="handlers"
-    placeholder="try tagging with space or comma to submit"
+          taggable
+          multiple
+          no-drop
+          :map-keydown="handlers"
+          placeholder="enter an email"
   />
 </template>
 
@@ -12,19 +12,14 @@
 export default {
   name: 'CustomHandlers',
   methods: {
-    handlers (map, vm) {
-      const createTag = e => {
+    handlers: (map, vm) => ({
+      ...map, 50: e => {
         e.preventDefault();
-        vm.typeAheadSelect();
-        vm.searchEl.focus();
-      };
-
-      return {
-        ...map, //  defaults
-        32: createTag,  //  space
-        188: createTag,  //  comma
-      };
-    },
+        if( e.key === '@' && vm.search.length > 0 ) {
+          vm.search = `${vm.search}@gmail.com`;
+        }
+      },
+    }),
   },
 };
 </script>

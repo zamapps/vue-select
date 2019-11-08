@@ -1,13 +1,19 @@
 ### Customizing Keydown Behaviour
 ---
 
+## `selectOnKeyCodes`
+
+
+
+## `mapKeyDown`
+
 Vue Select provides the `map-keydown` Function prop to allow for customizing the components response to 
-keydown events while the input has focus. Here's the default function definition:
+keydown events while the search input has focus.
 
 ```js
 /**
- * @param map {Object} Mapped keyCode to handlers { <keyCode>: <callback> }
- * @param vm {Vue/Component} Vue Select instance
+ * @param map {Object} Mapped keyCode to handlers { <keyCode>:<callback> }
+ * @param vm {VueSelect}
  * @return {Object}
  */
 (map, vm) => map,
@@ -17,36 +23,41 @@ By default, the prop is a no–op returning the same object `map` object it rece
 maps keyCodes to handlers: `{ <keyCode>: <callback> }`. Modifying this object can override default
 functionality, or add handlers for different keys that the component doesn't normally listen for.
 
-### Example: Tag on `comma` and `space`
+**Default Handlers**
 
-If I have a taggable input, and I want `comma` or `space` to 'tag' the current option, you could 
-solve that with map-keydown. Since the tab button already creates tags, we can copy the handler
-for keyCode 9.
+```js
+//  delete
+8: e => this.maybeDeleteValue()
 
-```vue
-<template>
-  <v-select taggable multiple no-drop :map-keydown="handlers"/>
-</template>
+//  tab
+9: e => this.onTab()
 
-<script>
-export default {
-  methods: {
-    handlers (map, vm) {
-      const createTag = e => {
-        e.preventDefault();
-        vm.typeAheadSelect();
-        vm.searchEl.focus();
-      };
+//  enter
+13: e => {
+    e.preventDefault();
+    return this.typeAheadSelect();
+}
 
-      return {
-        ...map, //  defaults
-        32: createTag,  //  space
-        188: createTag,  //  comma
-      };
-    },
-  },
-};
-</script>
+//  esc
+27: e => this.onEscape()
+
+//  up
+38: e => {
+    e.preventDefault();
+    return this.typeAheadUp();
+}
+
+//  down
+40: e => {
+    e.preventDefault();
+    return this.typeAheadDown();
+}
 ```
+
+### Example: Autocomplete Email Addresses
+
+This is example listens for the `@` key, and autocompletes an email address with `@gmail.com`.
+
+<<< @/.vuepress/components/CustomHandlers.vue
 
 <custom-handlers></custom-handlers>
