@@ -18,22 +18,22 @@ describe("Moving the Typeahead Pointer", () => {
     expect(Select.vm.typeAheadPointer).toEqual(0);
   });
 
-  it("should move the pointer visually up the list on up arrow keyDown", () => {
+  it("should move the pointer visually up the list on up arrow keyUp", () => {
     const Select = mountDefault();
 
     Select.vm.typeAheadPointer = 1;
 
-    Select.find({ ref: "search" }).trigger("keyup.up");
+    Select.find({ ref: "search" }).trigger("keydown.up");
 
     expect(Select.vm.typeAheadPointer).toEqual(0);
   });
 
-  it("should move the pointer visually down the list on down arrow keyDown", () => {
+  it("should move the pointer visually down the list on down arrow keyUp", () => {
     const Select = mountDefault();
 
     Select.vm.typeAheadPointer = 1;
 
-    Select.find({ ref: "search" }).trigger("keyup.down");
+    Select.find({ ref: "search" }).trigger("keydown.down");
 
     expect(Select.vm.typeAheadPointer).toEqual(2);
   });
@@ -47,23 +47,23 @@ describe("Moving the Typeahead Pointer", () => {
   });
 
   describe("Automatic Scrolling", () => {
-    it("should check if the scroll position needs to be adjusted on up arrow keyDown", () => {
+    it("should check if the scroll position needs to be adjusted on up arrow keyUp", () => {
       const Select = mountDefault();
       const spy = jest.spyOn(Select.vm, "maybeAdjustScroll");
 
       Select.vm.typeAheadPointer = 1;
 
-      Select.find({ ref: "search" }).trigger("keyup.up");
+      Select.find({ ref: "search" }).trigger("keydown.up");
       expect(spy).toHaveBeenCalled();
     });
 
-    it("should check if the scroll position needs to be adjusted on down arrow keyDown", () => {
+    it("should check if the scroll position needs to be adjusted on down arrow keyUp", () => {
       const Select = mountDefault();
       const spy = jest.spyOn(Select.vm, "maybeAdjustScroll");
 
       Select.vm.typeAheadPointer = 1;
 
-      Select.find({ ref: "search" }).trigger("keyup.down");
+      Select.find({ ref: "search" }).trigger("keydown.down");
       expect(spy).toHaveBeenCalled();
     });
 

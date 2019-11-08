@@ -51,15 +51,15 @@
     </div>
 
     <transition :name="transition">
-      <ul ref="dropdownMenu" v-if="dropdownOpen" class="vs__dropdown-menu" role="listbox" @mousedown="onMousedown" @mouseup="onMouseUp">
+      <ul ref="dropdownMenu" v-if="dropdownOpen" class="vs__dropdown-menu" role="listbox" @mousedown.prevent="onMousedown" @mouseup="onMouseUp">
         <li
           role="option"
           v-for="(option, index) in filteredOptions"
           :key="getOptionKey(option)"
           class="vs__dropdown-option"
-          :class="{ 'vs__dropdown-option--selected': isOptionSelected(option), 'vs__dropdown-option--highlight': index === typeAheadPointer }"
-          @mouseover="typeAheadPointer = index"
-          @mousedown.prevent.stop="select(option)"
+          :class="{ 'vs__dropdown-option--selected': isOptionSelected(option), 'vs__dropdown-option--highlight': index === typeAheadPointer, 'vs__dropdown-option--disabled': !selectable(option) }"
+          @mouseover="selectable(option) ? typeAheadPointer = index : null"
+          @mousedown.prevent.stop="selectable(option) ? select(option) : null"
         >
           <slot name="option" v-bind="normalizeOptionForSlot(option)">
             {{ getOptionLabel(option) }}
@@ -222,6 +222,19 @@
       reduce: {
         type: Function,
         default: option => option,
+      },
+
+      /**
+       * Decides wether an option is selectable or not. Not selectable options
+       * are displayed but disabled and cannot be selected.
+       *
+       * @type {Function}
+       * @param {Object|String} option
+       * @return {Boolean}
+       */
+      selectable: {
+        type: Function,
+        default: option => true,
       },
 
       /**
@@ -838,16 +851,10 @@
           case 9:
             //  tab
             return this.onTab();
-        }
-      },
-
-      /**
-       * Search 'input' KeyBoardEvent handler.
-       * @param e {KeyboardEvent}
-       * @return {Function}
-       */
-      onSearchKeyUp (e) {
-        switch (e.keyCode) {
+          case 13:
+            //  enter.prevent
+            e.preventDefault();
+            return this.typeAheadSelect();
           case 27:
             //  esc
             return this.onEscape();
@@ -859,10 +866,6 @@
             //  down.prevent
             e.preventDefault();
             return this.typeAheadDown();
-          case 13:
-            //  enter.prevent
-            e.preventDefault();
-            return this.typeAheadSelect();
         }
       }
     },
@@ -941,7 +944,6 @@
             },
             events: {
               'keydown': this.onSearchKeyDown,
-              'keyup': this.onSearchKeyUp,
               'blur': this.onSearchBlur,
               'focus': this.onSearchFocus,
               'input': (e) => this.search = e.target.value
