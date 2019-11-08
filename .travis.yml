@@ -6,4 +6,4 @@ node_js:
 
 script:
   - yarn test --coverage --coverageReporters=text-lcov | coveralls
-  - yarn build && bundlewatch ./dist/*
+  - yarn build && bundlewatch ./dist/!(*.map)
