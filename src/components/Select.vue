@@ -79,6 +79,9 @@
   import ajax from '../mixins/ajax'
   import childComponents from './childComponents';
 
+  /**
+   * @name VueSelect
+   */
   export default {
     components: {...childComponents},
 
@@ -302,11 +305,12 @@
 
       /**
        * Select the current value if selectOnTab is enabled
+       * @deprecated since 3.3
        */
       onTab: {
         type: Function,
         default: function () {
-          if (this.selectOnTab) {
+          if (this.selectOnTab && !this.isComposing) {
             this.typeAheadSelect();
           }
         },
@@ -449,10 +453,20 @@
       /**
        * When true, hitting the 'tab' key will select the current select value
        * @type {Boolean}
+       * @deprecated since 3.3 - use selectOnKeyCodes instead
        */
       selectOnTab: {
         type: Boolean,
         default: false
+      },
+
+      /**
+       * Keycodes that will select the current option.
+       * @type Array
+       */
+      selectOnKeyCodes: {
+        type: Array,
+        default: () => [13],
       },
 
       /**
@@ -467,6 +481,21 @@
       searchInputQuerySelector: {
         type: String,
         default: '[type=search]'
+      },
+
+      /**
+       * Used to modify the default keydown events map
+       * for the search input. Can be used to implement
+       * custom behaviour for key presses.
+       */
+      mapKeydown: {
+        type: Function,
+        /**
+         * @param map {Object}
+         * @param vm {VueSelect}
+         * @return {Object}
+         */
+        default: (map, vm) => map,
       }
     },
 
@@ -474,6 +503,7 @@
       return {
         search: '',
         open: false,
+        isComposing: false,
         pushedTags: [],
         _value: [] // Internal value managed by Vue Select if no `value` prop is passed
       }
@@ -840,39 +870,46 @@
       },
 
       /**
-       * Search 'input' KeyBoardEvent handler.
+       * Search <input> KeyBoardEvent handler.
        * @param e {KeyboardEvent}
        * @return {Function}
        */
       onSearchKeyDown (e) {
-        switch (e.keyCode) {
-          case 8:
-            //  delete
-            return this.maybeDeleteValue();
-          case 9:
-            //  tab
-            return this.onTab();
-          case 13:
-            //  enter.prevent
-            e.preventDefault();
-            return this.typeAheadSelect();
-          case 27:
-            //  esc
-            return this.onEscape();
-          case 38:
-            //  up.prevent
+        const preventAndSelect = e => {
+          e.preventDefault();
+          return !this.isComposing && this.typeAheadSelect();
+        };
+
+        const defaults = {
+          //  delete
+          8: e => this.maybeDeleteValue(),
+          //  tab
+          9: e => this.onTab(),
+          //  esc
+          27: e => this.onEscape(),
+          //  up.prevent
+          38: e => {
             e.preventDefault();
             return this.typeAheadUp();
-          case 40:
-            //  down.prevent
+          },
+          //  down.prevent
+          40: e => {
             e.preventDefault();
             return this.typeAheadDown();
+          },
+        };
+
+        this.selectOnKeyCodes.forEach(keyCode => defaults[keyCode] = preventAndSelect);
+
+        const handlers = this.mapKeydown(defaults, this);
+
+        if (typeof handlers[e.keyCode] === 'function') {
+          return handlers[e.keyCode](e);
         }
       }
     },
 
     computed: {
-
       /**
        * Determine if the component needs to
        * track the state of values internally.
@@ -944,10 +981,12 @@
               'value': this.search,
             },
             events: {
+              'compositionstart': () => this.isComposing = true,
+              'compositionend': () => this.isComposing = false,
               'keydown': this.onSearchKeyDown,
               'blur': this.onSearchBlur,
               'focus': this.onSearchFocus,
-              'input': (e) => this.search = e.target.value
+              'input': (e) => this.search = e.target.value,
             },
           },
           spinner: {

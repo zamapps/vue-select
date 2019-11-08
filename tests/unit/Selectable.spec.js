@@ -4,7 +4,7 @@ describe("Selectable prop", () => {
   it("should select selectable option if clicked", () => {
     const Select = selectWithProps({
       options: ["one", "two", "three"],
-      selectable: (option) => option == "one"
+      selectable: (option) => option === "one"
     });
 
     Select.vm.$data.open = true;
@@ -16,7 +16,7 @@ describe("Selectable prop", () => {
   it("should not select not selectable option if clicked", () => {
     const Select = selectWithProps({
       options: ["one", "two", "three"],
-      selectable: (option) => option == "one"
+      selectable: (option) => option === "one"
     });
 
     Select.vm.$data.open = true;

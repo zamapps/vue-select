@@ -124,6 +124,13 @@ module.exports = {
           ],
         },
         {
+          title: 'Customizing',
+          collapsable: false,
+          children: [
+            ['guide/keydown', 'Keydown Events'],
+          ],
+        },
+        {
           title: 'API',
           collapsable: false,
           children: [
