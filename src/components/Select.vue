@@ -17,7 +17,7 @@
             <slot name="selected-option" v-bind="normalizeOptionForSlot(option)">
               {{ getOptionLabel(option) }}
             </slot>
-            <button v-if="multiple" :disabled="disabled" @click="deselect(option)" type="button" class="vs__deselect" aria-label="Deselect option">
+            <button v-if="multiple" :disabled="disabled" @click="deselect(option)" type="button" class="vs__deselect" :aria-label="i18n.deselect.ariaLabel">
               <component :is="childComponents.Deselect" />
             </button>
           </span>
@@ -45,7 +45,7 @@
         </slot>
 
         <slot name="spinner" v-bind="scope.spinner">
-          <div class="vs__spinner" v-show="mutableLoading">Loading...</div>
+          <div class="vs__spinner" v-show="mutableLoading">{{ i18n.spinner.text }}</div>
         </slot>
       </div>
     </div>
@@ -66,7 +66,7 @@
           </slot>
         </li>
         <li v-if="!filteredOptions.length" class="vs__no-options" @mousedown.stop="">
-          <slot name="no-options">Sorry, no matching options.</slot>
+          <slot name="no-options">{{ i18n.noOptions.text }}</slot>
         </li>
       </ul>
     </transition>
@@ -77,6 +77,7 @@
   import pointerScroll from '../mixins/pointerScroll'
   import typeAheadPointer from '../mixins/typeAheadPointer'
   import ajax from '../mixins/ajax'
+  import i18n from '../mixins/i18n'
   import childComponents from './childComponents';
 
   /**
@@ -85,7 +86,7 @@
   export default {
     components: {...childComponents},
 
-    mixins: [pointerScroll, typeAheadPointer, ajax],
+    mixins: [pointerScroll, typeAheadPointer, ajax, i18n],
 
     props: {
       /**
@@ -973,7 +974,7 @@
               'readonly': !this.searchable,
               'id': this.inputId,
               'aria-expanded': this.dropdownOpen,
-              'aria-label': 'Search for option',
+              'aria-label': this.i18n.search.ariaLabel,
               'ref': 'search',
               'role': 'combobox',
               'type': 'search',
