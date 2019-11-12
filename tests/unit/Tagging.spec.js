@@ -80,6 +80,20 @@ describe("When Tagging Is Enabled", () => {
     expect(Select.vm.optionList).toEqual(["one", "two", "three"]);
   });
 
+  it("should pushTags even if the consumer has defined a createOption callback", () => {
+    const Select = selectWithProps({
+      pushTags: true,
+      taggable: true,
+      createOption: option => option,
+      options: ["one", "two"]
+    });
+
+    searchSubmit(Select, "three");
+
+    expect(Select.vm.pushedTags).toEqual(["three"]);
+    expect(Select.vm.optionList).toEqual(["one", "two", "three"]);
+  });
+
   it("should add a freshly created option/tag to the options list when pushTags is true and filterable is false", () => {
     const Select = selectWithProps({
       filterable: false,
