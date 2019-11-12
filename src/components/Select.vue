@@ -14,7 +14,6 @@
             />
           </span>
         </slot>
-
         <slot name="search" v-bind="scope.search">
           <input v-bind="scope.search.attributes" v-on="scope.search.events">
         </slot>
@@ -28,15 +27,13 @@
             v-on="scope.clear.events"
           />
         </slot>
-
         <slot name="open-indicator" v-bind="scope.openIndicator">
           <component
-            v-if="!noDrop"
-            :is="childComponents.OpenIndicator"
+            v-if="scope.openIndicator.shouldDisplay"
+            :is="scope.openIndicator.component"
             v-bind="scope.openIndicator.attributes"
           />
         </slot>
-
         <slot name="spinner" v-bind="scope.spinner">
           <div :class="scope.spinner.bindings.class" v-show="mutableLoading">Loading...</div>
         </slot>
@@ -1092,6 +1089,8 @@
             },
           },
           openIndicator: {
+            shouldDisplay: ! this.noDrop,
+            component: this.childComponents.openIndicator,
             attributes: {
               'ref': 'openIndicator',
               'role': 'presentation',
