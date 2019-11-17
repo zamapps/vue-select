@@ -63,19 +63,18 @@ module.exports = {
   title: 'Vue Select',
   description: meta.description,
   head,
-  plugins: {
-    '@vuepress/google-analytics': {
-      ga: isDeployPreview ? '' : 'UA-12818324-8',
-    },
-    '@vuepress/pwa': {
+  plugins: [
+    require('./generateApiDocs'),
+    ['@vuepress/google-analytics',{ga: isDeployPreview ? '' : 'UA-12818324-8',}],
+    ['@vuepress/pwa', {
       serviceWorker: false,
       updatePopup: true,
-    },
-    '@vuepress/plugin-register-components': {},
-    '@vuepress/plugin-active-header-links': {},
-    '@vuepress/plugin-search': {},
-    '@vuepress/plugin-nprogress': {},
-  },
+    }],
+    '@vuepress/plugin-register-components',
+    '@vuepress/plugin-active-header-links',
+    '@vuepress/plugin-search',
+    '@vuepress/plugin-nprogress',
+  ],
   themeConfig: {
     repo: 'sagalbot/vue-select',
     editLinks: true,
