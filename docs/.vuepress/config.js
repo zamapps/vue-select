@@ -64,7 +64,7 @@ module.exports = {
   description: meta.description,
   head,
   plugins: [
-    require('./generateApiDocs'),
+    require('./generateApiDocs/index'),
     ['@vuepress/google-analytics',{ga: isDeployPreview ? '' : 'UA-12818324-8',}],
     ['@vuepress/pwa', {
       serviceWorker: false,
@@ -128,15 +128,6 @@ module.exports = {
           collapsable: false,
           children: [
             ['guide/keydown', 'Keydown Events'],
-          ],
-        },
-        {
-          title: 'API',
-          collapsable: false,
-          children: [
-            ['api/props', 'Props'],
-            ['api/slots', 'Slots'],
-            ['api/events', 'Events'],
           ],
         },
       ],

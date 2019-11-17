@@ -1,6 +1,6 @@
-const docs = require('vue-docgen-api');
 const path = require('path');
 const fs = require('fs');
+const generator = require('./generator');
 
 /**
  * Get all of the component mixin paths.
@@ -30,11 +30,12 @@ module.exports = (options, {sourceDir}) => ({
    * @return {Promise<{name: string, content: string}>}
    */
   async clientDynamicModules () {
-    const file = path.resolve(sourceDir, '../src/components/Select.vue');
+    const docs = await generator(sourceDir);
+    console.log('Generated API documentation for Select.vue');
 
     return {
       name: 'api.js',
-      content: `export default ${JSON.stringify(await docs.parse(file))}`,
+      content: `export default ${JSON.stringify(docs)}`,
     };
   },
 });
