@@ -5,15 +5,19 @@
   "scripts": {
     "serve": "vuepress dev",
     "build": "vuepress build",
-    "build:preview": "cross-env DEPLOY_PREVIEW=true vuepress build"
+    "build:preview": "cross-env DEPLOY_PREVIEW=true vuepress build",
+    "debug": "node --inspect-brk ./node_modules/.bin/vuepress dev"
   },
   "devDependencies": {
+    "@babel/types": "^7.7.2",
     "@vuepress/plugin-active-header-links": "^1.0.0-alpha.47",
     "@vuepress/plugin-google-analytics": "^1.0.0-alpha.47",
     "@vuepress/plugin-nprogress": "^1.0.0-alpha.47",
     "@vuepress/plugin-pwa": "^1.0.0-alpha.47",
     "@vuepress/plugin-register-components": "^1.0.0-alpha.47",
     "@vuepress/plugin-search": "^1.0.0-alpha.47",
+    "ast-types": "^0.13.2",
+    "chalk": "^3.0.0",
     "cross-env": "^5.2.0",
     "fuse.js": "^3.4.4",
     "gh-pages": "^0.11.0",

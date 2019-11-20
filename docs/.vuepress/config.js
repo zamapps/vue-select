@@ -130,6 +130,16 @@ module.exports = {
             ['guide/keydown', 'Keydown Events'],
           ],
         },
+        {
+          title: 'API',
+          collapsable: false,
+          children: [
+            ['api/props', 'Props'],
+            ['api/events', 'Events'],
+            ['api/slots', 'Slots'],
+            ['api/methods', 'Methods'],
+          ],
+        },
       ],
     },
   },
