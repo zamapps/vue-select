@@ -1,1 +1,5 @@
-<ApiDocs type="props" />
+---
+api: props
+---
+
+<api-props type="props" />

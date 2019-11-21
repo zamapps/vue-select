@@ -1,18 +1,7 @@
 const path = require('path');
-const fs = require('fs');
 const chalk = require('chalk');
 const generator = require('./generator');
-
-/**
- * Get all of the component mixin paths.
- * @param directory
- * @return {string[]}
- */
-function getMixins (directory) {
-  return fs.readdirSync(directory)
-    .filter(file => file !== 'index.js')
-    .map(file => path.resolve(directory, file));
-}
+const extendPageData = require('./extendPageData');
 
 /**
  * @param options
@@ -20,10 +9,12 @@ function getMixins (directory) {
  * @return {{clientDynamicModules(): Promise<{name: string, content: string}>}}
  */
 module.exports = (options, {sourceDir}) => ({
+  name: 'vuepress-docgen',
 
   /**
    * Dynamically generates all API documentation with vue-docgen-api.
-   * Resulting object can be imported and used client-side via:
+   * The resulting object can be imported and used client-side via:
+   *
    * import documentation from '@dynamic/api'
    *
    * @see https://vuepress.vuejs.org/plugin/option-api.html#clientdynamicmodules
@@ -43,4 +34,12 @@ module.exports = (options, {sourceDir}) => ({
    */
   enhanceAppFiles: path.resolve(__dirname, 'enhanceApp.js'),
 
+  /**
+   * This function is responsible for adding documentation headers
+   * to the `headers Array` of each API page. These headers are
+   * then picked up by the search API, and displayed in the sidebar.
+   *
+   * @see https://vuepress.vuejs.org/plugin/option-api.html#extendpagedata
+   */
+  extendPageData,
 });

@@ -9,14 +9,14 @@
     <ul>
       <li v-for="prop in filtered">
         <h2 :id="prop.name">
-          <a :href="`#${prop.name}`" aria-hidden="true" class="header-anchor">#</a>
-          {{ prop.name }}
-
-          <small><code>{{ prop.type }}</code></small>
+          <div>
+            <a :href="`#${prop.name}`" aria-hidden="true" class="header-anchor">#</a>
+            {{ prop.name }} <code>{{ prop.type }}</code>
+          </div>
 
           <template v-if="prop.since.hasOwnProperty('version')">
             <a :href="prop.since.link">
-              <Badge :text="`+${prop.since.version}`" />
+              <Badge :text="`+${prop.since.version}`" vertical="middle" />
             </a>
           </template>
         </h2>
@@ -37,48 +37,20 @@
 
 <script>
 import documentation from '@dynamic/api'
-import { highlight, languages } from 'prismjs';
-import Markdown from 'markdown-it';
-
-const md = new Markdown();
+import getSee from '../utils/getSee';
+import getSince from '../utils/getSince';
+import markdown from '../utils/markdown';
+import formatTag from '../utils/formatTag';
+import highlight from '../utils/highlight';
 
 export default {
-  name: "ApiDocs",
+  name: "ApiProps",
   methods: {
-    markdown: snippet => md.render(snippet),
-    highlight: snippet => highlight(snippet, languages.javascript, 'javascript'),
-    /**
-     * @param tag
-     * @return {Object}
-     */
-    formatTag (tag, type) {
-      let rendered = `@${tag.title}`;
-      if (tag.hasOwnProperty('type')) {
-        rendered += ' {' + tag.type.name + '}'
-      }
-      if (tag.hasOwnProperty('name')) {
-        rendered += ` ${tag.name} `
-      }
-      if (tag.hasOwnProperty('description')) {
-        rendered += ` ${tag.description}`
-      }
-      return rendered;
-    },
-    getSince (tags) {
-      const since = {};
-      if (tags.hasOwnProperty('since')) {
-        since.version = tags.since[0].description;
-        since.link = `https://github.com/sagalbot/vue-select/releases/tag/v${tags.since[0].description}`
-      }
-      return since;
-    },
-    getSee (tags) {
-      const since = [];
-      if (tags.hasOwnProperty('see')) {
-        tags.see.forEach(({description}) => since.push(description));
-      }
-      return since;
-    },
+    markdown,
+    highlight,
+    formatTag,
+    getSince,
+    getSee,
     getParams (tags) {
       const params = [];
       if (tags.hasOwnProperty('params')) {
@@ -142,7 +114,7 @@ export default {
           see,
           params,
           type,
-          defaultRendered
+          defaultRendered,
         }
       }).sort((a, b) => a.name > b.name);
     },
@@ -150,24 +122,4 @@ export default {
 }
 </script>
 
-<style scoped>
-  h2 {
-    margin-top: -3.1rem;
-    padding-top: 4.6rem;
-    margin-bottom: 0;
-  }
-
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .search-box {
-    width: 100%;
-  }
-
-  .search-box [type=search] {
-    width: 100%;
-  }
-</style>
+<style scoped src="../assets/listing.css"></style>
