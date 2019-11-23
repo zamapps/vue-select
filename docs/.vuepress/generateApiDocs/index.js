@@ -1,7 +1,6 @@
 const path = require('path');
-const chalk = require('chalk');
-const generator = require('./generator');
 const extendPageData = require('./extendPageData');
+const clientDynamicModules = require('./clientDynamicModules');
 
 /**
  * @param options
@@ -12,22 +11,12 @@ module.exports = (options, {sourceDir}) => ({
   name: 'vuepress-docgen',
 
   /**
-   * Dynamically generates all API documentation with vue-docgen-api.
-   * The resulting object can be imported and used client-side via:
-   *
-   * import documentation from '@dynamic/api'
+   * Generates API documentation for use on the client side.
    *
    * @see https://vuepress.vuejs.org/plugin/option-api.html#clientdynamicmodules
    * @return {Promise<{name: string, content: string}>}
    */
-  async clientDynamicModules () {
-    const docs = await generator(sourceDir);
-    console.log(chalk.green('✅ Generated API documentation for Select.vue'));
-    return {
-      name: 'api.js',
-      content: `export default ${JSON.stringify(docs)}`,
-    };
-  },
+  clientDynamicModules: async () => await clientDynamicModules(sourceDir),
 
   /**
    * @see https://vuepress.vuejs.org/plugin/option-api.html#enhanceappfiles

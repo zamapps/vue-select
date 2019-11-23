@@ -75,6 +75,11 @@ module.exports = {
     '@vuepress/plugin-search',
     '@vuepress/plugin-nprogress',
   ],
+  extraWatchFiles: [
+    '.vuepress/generateApiDocs/**/*.js',
+    '../src/**.*.js',
+    '../src/**.*.vue',
+  ],
   themeConfig: {
     repo: 'sagalbot/vue-select',
     editLinks: true,
