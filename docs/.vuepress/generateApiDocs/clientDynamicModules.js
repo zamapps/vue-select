@@ -1,4 +1,4 @@
-const generator = require('./utils/node/generator');
+const generator = require('./node/generator');
 const {green} = require('chalk');
 
 /**

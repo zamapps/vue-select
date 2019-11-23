@@ -18,6 +18,40 @@ function pickBindingsFromElement ({attribs}) {
   );
 }
 
+function parseDocBlock(comment) {
+
+}
+
+function findDocBlockForExpression(path, comments) {
+  const methodLocationStart = path.node.loc.start;
+  return comments.find(({loc}) => {
+    return methodLocationStart.line - 1 === loc.end.line;
+  }).value || '';
+}
+
+/**
+ * @param {Slots} slots
+ * @param content
+ */
+function getSlotBindingComments (slots, {content}) {
+  const ast = parse(content, {sourceType: 'module'});
+
+  /**
+   * TODO:
+   * - [ ] this traversal currently includes watchers, need to limit to
+   *        props, methods, computed, maybe data too?
+   * - [ ] attach the comments to the bindings
+   */
+
+  traverse.default(ast, {
+    enter (path) {
+      if (path.node.key && slots.bindings.includes(path.node.key.name)) {
+        const comments = findDocBlockForExpression(path, ast.comments);
+      }
+    },
+  });
+}
+
 /**
  * @param pathToComponent
  * @return {Object}
@@ -25,8 +59,9 @@ function pickBindingsFromElement ({attribs}) {
 function getAdditionalSlotProperties (pathToComponent) {
   const slots = new Slots();
   const file = fs.readFileSync(path.resolve(pathToComponent)).toString();
-  const {template} = compiler.parseComponent(file);
+  const {template, script} = compiler.parseComponent(file);
   const $ = cheerio.load(template.content);
+
 
   $('slot').each(function (index, element) {
     const bindings = pickBindingsFromElement(element) || {};
@@ -38,6 +73,8 @@ function getAdditionalSlotProperties (pathToComponent) {
       bindings,
     });
   });
+
+  getSlotBindingComments(slots, script);
 
   return slots.definitions;
 }

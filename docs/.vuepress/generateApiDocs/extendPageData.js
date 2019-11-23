@@ -1,4 +1,4 @@
-const generator = require('./utils/node/generator');
+const generator = require('./node/generator');
 
 module.exports = async function (page) {
   const section = ['props', 'events', 'slots', 'methods'].find(

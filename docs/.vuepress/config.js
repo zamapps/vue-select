@@ -64,7 +64,7 @@ module.exports = {
   description: meta.description,
   head,
   plugins: [
-    require('./generateApiDocs/index'),
+    require('generateApiDocs'),
     ['@vuepress/google-analytics',{ga: isDeployPreview ? '' : 'UA-12818324-8',}],
     ['@vuepress/pwa', {
       serviceWorker: false,
