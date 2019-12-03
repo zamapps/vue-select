@@ -1,25 +1,28 @@
 import Vue from 'vue';
-import { selectWithProps } from '../helpers';
+import { mountDefault, selectWithProps } from '../helpers';
+import components from '../../src/components/childComponents';
 
 describe('Components API', () => {
 
+  it('uses the default components', () => {
+    const Select = mountDefault();
+    expect(Select.contains(components.Deselect)).toBeTruthy();
+    expect(Select.contains(components.OpenIndicator)).toBeTruthy();
+  });
+
   it('swap the Deselect component', () => {
     const Deselect = Vue.component('Deselect', {
-      render (createElement) {
-        return createElement('span', 'remove');
-      },
+      render: (createElement) => createElement('span', 'remove'),
     });
 
-    const Select = selectWithProps({components: {Deselect}});
+    const Select = selectWithProps({components: {Deselect}, multiple: true});
 
     expect(Select.contains(Deselect)).toBeTruthy();
   });
 
   it('swap the OpenIndicator component', () => {
     const OpenIndicator = Vue.component('OpenIndicator', {
-      render (createElement) {
-        return createElement('i', '^');
-      },
+      render: (createElement) => createElement('i', '^'),
     });
 
     const Select = selectWithProps({components: {OpenIndicator}});

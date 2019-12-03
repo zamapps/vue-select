@@ -1090,7 +1090,7 @@
           },
           openIndicator: {
             shouldDisplay: ! this.noDrop,
-            component: this.childComponents.openIndicator,
+            component: this.childComponents.OpenIndicator,
             attributes: {
               'ref': 'openIndicator',
               'role': 'presentation',
