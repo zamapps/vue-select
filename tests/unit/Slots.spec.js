@@ -1,29 +1,53 @@
 import { mountDefault } from '../helpers';
 
+/**
+ * Breaking change to the slot signature: {option} is no longer a valid key
+ * Breaking change: removed selected-option-container
+ */
+
 describe('Scoped Slots', () => {
-  it('receives an option object to the selected-option slot', () => {
-    const Select = mountDefault(
-      {value: 'one'},
-      {
-        scopedSlots: {
-          'selected-option': `<span class="vs__selected" slot="selected-option" slot-scope="option">{{ option.label }}</span>`,
-        },
-      });
+  let receiveProps = props => receivedSlotProps = props;
+  let receivedSlotProps;
 
-    expect(Select.find('.vs__selected').text()).toEqual('one')
+  beforeEach(() => receivedSlotProps = null);
+
+  describe('Slot: selected-option', () => {
+    it('receives an option object in the selected-option slot', () => {
+      mountDefault(
+        {value: 'one'},
+        {scopedSlots: {'selected-option': receiveProps}},
+      );
+      expect(receivedSlotProps.label).toEqual('one');
+      expect(receivedSlotProps.hasOwnProperty('bindings')).toBeTruthy();
+      expect(receivedSlotProps.hasOwnProperty('events')).toBeTruthy();
+      expect(receivedSlotProps.hasOwnProperty('deselect')).toBeTruthy();
+    });
+
+    xit('opens the dropdown when clicked', () => {
+        const Select = mountDefault(
+          {value: 'one'},
+          {
+            scopedSlots: {
+              'selected-option': `<span class="my-option" slot-scope="option">{{ option.label }}</span>`,
+            },
+          });
+
+        Select.find('.my-option').trigger('mousedown');
+        expect(Select.vm.open).toEqual(true);
+      });
   });
 
-  it('receives an option object to the option slot in the dropdown menu', () => {
-    const Select = mountDefault(
-      {value: 'one'},
-      {
-        scopedSlots: {
-          'option': `<span slot="option" slot-scope="option">{{ option.label }}</span>`,
-        },
-      });
-
-    Select.vm.open = true;
-
-    expect(Select.find({ref: 'dropdownMenu'}).text()).toEqual('onetwothree')
+  describe('Slot: option', () => {
+    it('receives an option object in the option slot', () => {
+      const {vm} = mountDefault(
+        {value: 'one', options: ['one']},
+        {scopedSlots: {option: receiveProps}},
+      );
+      vm.open = true;
+      expect(receivedSlotProps.label).toEqual('one');
+      expect(receivedSlotProps.hasOwnProperty('attributes')).toBeTruthy();
+      expect(receivedSlotProps.hasOwnProperty('events')).toBeTruthy();
+    });
   });
+
 });

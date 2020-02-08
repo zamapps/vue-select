@@ -1,25 +1,37 @@
-import { selectWithProps } from "../helpers";
+import { mountWithProps } from "../helpers";
 import OpenIndicator from "../../src/components/OpenIndicator";
 
 describe("Toggling Dropdown", () => {
-  it("should not open the dropdown when the el is clicked but the component is disabled", () => {
-    const Select = selectWithProps({ disabled: true });
-    Select.vm.toggleDropdown({ target: Select.vm.$refs.search });
-    expect(Select.vm.open).toEqual(false);
-  });
-
-  it("should open the dropdown when the el is clicked", () => {
-    const Select = selectWithProps({
+  it("should open the dropdown when the el is clicked", async () => {
+    const Select = mountWithProps({
       value: [{ label: "one" }],
       options: [{ label: "one" }]
     });
+    const spy = jest.spyOn(Select.vm, 'toggleDropdown');
 
-    Select.vm.toggleDropdown({ target: Select.vm.$refs.search });
+    Select.find({ref: 'toggle'}).trigger('mousedown');
+
+    await Select.vm.$nextTick();
+
+    expect(spy).toHaveBeenCalled();
     expect(Select.vm.open).toEqual(true);
   });
 
+  it("should not open the dropdown when the el is clicked but the component is disabled", async () => {
+    const Select = mountWithProps({ disabled: true });
+
+    const spy = jest.spyOn(Select.vm, 'toggleDropdown');
+
+    Select.find({ref: 'toggle'}).trigger('mousedown');
+
+    await Select.vm.$nextTick();
+
+    expect(spy).toHaveBeenCalled();
+    expect(Select.vm.open).toEqual(false);
+  });
+
   it("should open the dropdown when the selected tag is clicked", () => {
-    const Select = selectWithProps({
+    const Select = mountWithProps({
       value: [{ label: "one" }],
       options: [{ label: "one" }]
     });
@@ -31,7 +43,7 @@ describe("Toggling Dropdown", () => {
   });
 
   it("can close the dropdown when the el is clicked", () => {
-    const Select = selectWithProps();
+    const Select = mountWithProps();
     const spy = jest.spyOn(Select.vm.$refs.search, "blur");
 
     Select.vm.open = true;
@@ -41,7 +53,7 @@ describe("Toggling Dropdown", () => {
   });
 
   it("closes the dropdown when an option is selected, multiple is true, and closeOnSelect option is true", () => {
-    const Select = selectWithProps({
+    const Select = mountWithProps({
       value: [],
       options: ["one", "two", "three"],
       multiple: true
@@ -54,7 +66,7 @@ describe("Toggling Dropdown", () => {
   });
 
   it("does not close the dropdown when the el is clicked, multiple is true, and closeOnSelect option is false", () => {
-    const Select = selectWithProps({
+    const Select = mountWithProps({
       value: [],
       options: ["one", "two", "three"],
       multiple: true,
@@ -68,7 +80,7 @@ describe("Toggling Dropdown", () => {
   });
 
   it("should close the dropdown on search blur", () => {
-    const Select = selectWithProps({
+    const Select = mountWithProps({
       options: [{ label: "one" }]
     });
 
@@ -79,7 +91,7 @@ describe("Toggling Dropdown", () => {
   });
 
   it("will close the dropdown and emit the search:blur event from onSearchBlur", () => {
-    const Select = selectWithProps();
+    const Select = mountWithProps();
     const spy = jest.spyOn(Select.vm, "$emit");
 
     Select.vm.open = true;
@@ -90,7 +102,7 @@ describe("Toggling Dropdown", () => {
   });
 
   it("will open the dropdown and emit the search:focus event from onSearchFocus", () => {
-    const Select = selectWithProps();
+    const Select = mountWithProps();
     const spy = jest.spyOn(Select.vm, "$emit");
 
     Select.vm.onSearchFocus();
@@ -100,7 +112,7 @@ describe("Toggling Dropdown", () => {
   });
 
   it("will close the dropdown on escape, if search is empty", () => {
-    const Select = selectWithProps();
+    const Select = mountWithProps();
     const spy = jest.spyOn(Select.vm.$refs.search, "blur");
 
     Select.vm.open = true;
@@ -110,7 +122,7 @@ describe("Toggling Dropdown", () => {
   });
 
   it("should remove existing search text on escape keydown", () => {
-    const Select = selectWithProps({
+    const Select = mountWithProps({
       value: [{ label: "one" }],
       options: [{ label: "one" }]
     });
@@ -121,7 +133,7 @@ describe("Toggling Dropdown", () => {
   });
 
   it("should have an open class when dropdown is active", () => {
-    const Select = selectWithProps();
+    const Select = mountWithProps();
 
     expect(Select.vm.stateClasses['vs--open']).toEqual(false);
 
@@ -130,7 +142,7 @@ describe("Toggling Dropdown", () => {
   });
 
   it("should not display the dropdown if noDrop is true", () => {
-    const Select = selectWithProps({
+    const Select = mountWithProps({
       noDrop: true,
     });
 
@@ -141,21 +153,21 @@ describe("Toggling Dropdown", () => {
   });
 
   it("should hide the open indicator if noDrop is true", () => {
-    const Select = selectWithProps({
+    const Select = mountWithProps({
       noDrop: true,
     });
     expect(Select.contains(OpenIndicator)).toBeFalsy();
   });
 
   it("should not add the searchable state class when noDrop is true", () => {
-    const Select = selectWithProps({
+    const Select = mountWithProps({
       noDrop: true,
     });
     expect(Select.classes('vs--searchable')).toBeFalsy();
   });
 
   it("should not add the searching state class when noDrop is true", () => {
-    const Select = selectWithProps({
+    const Select = mountWithProps({
       noDrop: true,
     });
 

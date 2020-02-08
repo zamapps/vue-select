@@ -7,10 +7,11 @@
           <span :class="selected.bindings.class">
             {{ selected.label }}
             <component
-              :is="selected.deselect.component"
-              v-if="selected.deselect.bindings.multiple"
-              v-bind="selected.deselect.bindings"
-              v-on="selected.deselect.events"
+            ref="deselectButtons"
+            :is="selected.deselect.component"
+            v-if="selected.deselect.bindings.multiple"
+            v-bind="selected.deselect.bindings"
+            v-on="selected.deselect.events"
             />
           </span>
         </slot>
@@ -22,6 +23,7 @@
       <div class="vs__actions" ref="actions">
         <slot name="clear">
           <component
+            ref="clearButton"
             :is="scope.clear.component"
             v-bind="scope.clear.bindings"
             v-on="scope.clear.events"
@@ -65,6 +67,8 @@
   import typeAheadPointer from '../mixins/typeAheadPointer'
   import ajax from '../mixins/ajax'
   import childComponents from './childComponents';
+
+  const spreadableOptionProperties = (option) => typeof option === 'object' ? {...option} : {};
 
   /**
    * @name VueSelect
@@ -215,10 +219,11 @@
       },
 
       /**
-       * Decides wether an option is selectable or not. Not selectable options
+       * Decides whether an option is selectable or not. Not selectable options
        * are displayed but disabled and cannot be selected.
        *
        * @type {Function}
+       * @since 3.3.0
        * @param {Object|String} option
        * @return {Boolean}
        */
@@ -292,10 +297,8 @@
       getOptionScope: {
         type: Function,
         default (option, index) {
-          const optionProperties = typeof option === 'object' ? {...option} : {};
-
           return {
-            ...optionProperties,
+            ...spreadableOptionProperties(option),
             label: this.getOptionLabel(option),
             attributes: {
               key: this.getOptionKey(option),
@@ -322,6 +325,7 @@
         type: Function,
         default (option, index) {
           return {
+            ...spreadableOptionProperties(option),
             label: this.getOptionLabel(option),
             deselect: this.getOptionDeselectScope(option),
             bindings: {
@@ -354,6 +358,7 @@
               'aria-label': `Deselect ${this.getOptionLabel(option)}`,
               'disabled': this.disabled,
               'multiple': this.multiple,
+              'ref': 'deselectButtons'
             },
             events: {
               'click': () => this.deselect(option),
@@ -467,12 +472,20 @@
       },
 
       /**
-       * When false, updating the options will not reset the select value
-       * @type {Boolean}
+       * When false, updating the options will not reset the selected value. Accepts
+       * a `boolean` or `function` that returns a `boolean`. If defined as a function,
+       * it will receive the params listed below.
+       *
+       * @since 3.4 - Type changed to {Boolean|Function}
+       *
+       * @type {Boolean|Function}
+       * @param {Array} newOptions
+       * @param {Array} oldOptions
+       * @param {Array} selectedValue
        */
       resetOnOptionsChange: {
-        type: Boolean,
-        default: false
+        default: false,
+        validator: (value) => ['function', 'boolean'].includes(typeof value)
       },
 
       /**
@@ -571,13 +584,17 @@
        * is correct.
        * @return {[type]} [description]
        */
-      options(val) {
-        if (!this.taggable && this.resetOnOptionsChange) {
-          this.clearSelection()
+      options (newOptions, oldOptions) {
+        let shouldReset = () => typeof this.resetOnOptionsChange === 'function'
+          ? this.resetOnOptionsChange(newOptions, oldOptions, this.selectedValue)
+          : this.resetOnOptionsChange;
+
+        if (!this.taggable && shouldReset()) {
+          this.clearSelection();
         }
 
         if (this.value && this.isTrackingValues) {
-          this.setInternalValueFromOptions(this.value)
+          this.setInternalValueFromOptions(this.value);
         }
       },
 
@@ -712,33 +729,23 @@
        * @param  {Event} e
        * @return {void}
        */
-      toggleDropdown (e) {
-        const target = e.target;
-        const toggleTargets = [
-          this.$el,
-          this.searchEl,
-          this.$refs.toggle,
-          this.$refs.actions,
-          this.$refs.selectedOptions,
+      toggleDropdown ({target}) {
+        //  don't react to click on deselect/clear buttons,
+        //  they dropdown state will be set in their click handlers
+        const ignoredButtons = [
+          ...(this.$refs['deselectButtons'] || []),
+          ...([this.$refs['clearButton']] || [])
         ];
 
-        if (typeof this.$refs.openIndicator !== 'undefined') {
-          toggleTargets.push(
-            this.$refs.openIndicator.$el,
-            // the line below is a bit gross, but required to support IE11 without adding polyfills
-            ...Array.prototype.slice.call(this.$refs.openIndicator.$el.childNodes),
-          );
+        if (ignoredButtons.some(ref => ref.contains(target) || ref === target)) {
+          return;
         }
 
-        if (toggleTargets.indexOf(target) > -1 || target.classList.contains('vs__selected')) {
-          if (this.open) {
-            this.searchEl.blur(); // dropdown will close on blur
-          } else {
-            if (!this.disabled) {
-              this.open = true;
-              this.searchEl.focus();
-            }
-          }
+        if (this.open) {
+          this.searchEl.blur();
+        } else if (!this.disabled) {
+          this.open = true;
+          this.searchEl.focus();
         }
       },
 
@@ -1061,6 +1068,7 @@
           clear: {
             component: this.childComponents.Deselect,
             bindings: {
+              'ref': 'clearButton',
               'disabled': this.disabled,
               'type': 'button',
               'class': 'vs__clear',
