@@ -978,7 +978,7 @@
               'ref': 'search',
               'role': 'combobox',
               'type': 'search',
-              'autocomplete': 'off',
+              'autocomplete': this.autocomplete,
               'value': this.search,
             },
             events: {
