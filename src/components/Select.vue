@@ -3,8 +3,7 @@
 </style>
 
 <template>
-  <div :dir="dir" class="v-select" :class="stateClasses">
-    <div ref="toggle" @mousedown.prevent="toggleDropdown" class="vs__dropdown-toggle">
+    <button :tabindex="tabindex" type="button" @keydown="keypressWhileToggleIsFocused" ref="toggle" @mousedown.prevent="maybeToggleDropdown" class="v-select vs__dropdown-toggle" :dir="dir" :class="stateClasses">
 
       <div class="vs__selected-options" ref="selectedOptions">
         <slot v-for="option in selectedValue"
@@ -49,8 +48,6 @@
           <div class="vs__spinner" v-show="mutableLoading">Loading...</div>
         </slot>
       </div>
-    </div>
-
     <transition :name="transition">
       <ul ref="dropdownMenu" v-if="dropdownOpen" class="vs__dropdown-menu" role="listbox" @mousedown.prevent="onMousedown" @mouseup="onMouseUp">
         <li
@@ -71,7 +68,8 @@
         </li>
       </ul>
     </transition>
-  </div>
+  </button>
+
 </template>
 
 <script type="text/babel">
@@ -508,6 +506,7 @@
         search: '',
         open: false,
         isComposing: false,
+        shouldDisplaySearch: true,
         pushedTags: [],
         _value: [] // Internal value managed by Vue Select if no `value` prop is passed
       }
@@ -666,7 +665,7 @@
        * @param  {Event} e
        * @return {void}
        */
-      toggleDropdown ({target}) {
+      maybeToggleDropdown ({target}) {
         //  don't react to click on deselect/clear buttons,
         //  they dropdown state will be set in their click handlers
         const ignoredButtons = [
@@ -678,7 +677,11 @@
           return;
         }
 
-        if (this.open) {
+        this.toggleDropdown(true);
+      },
+
+      toggleDropdown(toggle = true) {
+        if (this.open || ! toggle) {
           this.searchEl.blur();
         } else if (!this.disabled) {
           this.open = true;
@@ -829,7 +832,8 @@
           if (this.clearSearchOnBlur) {
             this.search = ''
           }
-          this.closeSearchOptions()
+          this.closeSearchOptions();
+          this.$refs.toggle.focus();
           return
         }
         // Fixed bug where no-options message could not be closed
@@ -907,6 +911,31 @@
         if (typeof handlers[e.keyCode] === 'function') {
           return handlers[e.keyCode](e);
         }
+      },
+
+      /**
+       * @param e {KeyboardEvent}
+       */
+      keypressWhileToggleIsFocused(e) {
+        // if( e.target === this.searchEl ) {
+        //   return;
+        // }
+        //
+        // if( 'Tab' === e.code ) {
+        //   e.preventDefault();
+        //   return
+        // }
+        //
+        // if( ['Space', 'Return'].includes(e.code) ) {
+        //   return this.toggleDropdown();
+        // }
+        //
+        // if( ['ShiftLeft', 'ShiftRight'].includes(e.code)) {
+        //   e.preventDefault();
+        //   return;
+        // }
+        //
+        // return this.toggleDropdown()
       }
     },
 
@@ -970,7 +999,7 @@
             attributes: {
               'disabled': this.disabled,
               'placeholder': this.searchPlaceholder,
-              'tabindex': this.tabindex,
+              'tabindex': '-1',
               'readonly': !this.searchable,
               'id': this.inputId,
               'aria-expanded': this.dropdownOpen,
@@ -1106,6 +1135,10 @@
        */
       showClearButton() {
         return !this.multiple && this.clearable && !this.open && !this.isValueEmpty
+      },
+
+      buttonIsFocused() {
+        return this.$el === this.$root.$el.querySelector(':focus');
       }
     },
 
