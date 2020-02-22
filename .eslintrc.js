@@ -1,20 +1,9 @@
 module.exports = {
-  env: {
-    node: true
-  },
   extends: [
-    'plugin:vue/recommended',
-    'plugin:import/errors',
-    'eslint:recommended',
-    'prettier',
-    'plugin:prettier/recommended',
-    'prettier/vue'
+    "plugin:vue/recommended",
+    "prettier/vue",
+    "plugin:prettier/recommended"
   ],
-  parserOptions: {
-    parser: 'babel-eslint',
-    ecmaVersion: 8,
-    sourceType: 'module'
-  },
   rules: {
     quotes: ['error', 'single'],
     indent: ['error', 2],
