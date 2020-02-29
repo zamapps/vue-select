@@ -414,11 +414,31 @@
       },
 
       /**
-       * When false, updating the options will not reset the select value
+       * When false, updating the options will not reset the selected value. Accepts
+       * a `boolean` or `function` that returns a `boolean`. If defined as a function,
+       * it will receive the params listed below.
+       *
+       * @since 3.4 - Type changed to {Boolean|Function}
+       *
+       * @type {Boolean|Function}
+       * @param {Array} newOptions
+       * @param {Array} oldOptions
+       * @param {Array} selectedValue
        */
       resetOnOptionsChange: {
-        type: Boolean,
-        default: false
+        default: false,
+        validator: (value) => ['function', 'boolean'].includes(typeof value)
+      },
+
+      /**
+       * If search text should clear on blur
+       * @return {Boolean} True when single and clearSearchOnSelect
+       */
+      clearSearchOnBlur: {
+        type: Function,
+        default: function ({ clearSearchOnSelect, multiple }) {
+          return clearSearchOnSelect && !multiple
+        }
       },
 
       /**
@@ -513,13 +533,17 @@
        * is correct.
        * @return {[type]} [description]
        */
-      options(val) {
-        if (!this.taggable && this.resetOnOptionsChange) {
-          this.clearSelection()
+      options (newOptions, oldOptions) {
+        let shouldReset = () => typeof this.resetOnOptionsChange === 'function'
+          ? this.resetOnOptionsChange(newOptions, oldOptions, this.selectedValue)
+          : this.resetOnOptionsChange;
+
+        if (!this.taggable && shouldReset()) {
+          this.clearSelection();
         }
 
         if (this.value && this.isTrackingValues) {
-          this.setInternalValueFromOptions(this.value)
+          this.setInternalValueFromOptions(this.value);
         }
       },
 
@@ -833,7 +857,8 @@
         if (this.mousedown && !this.searching) {
           this.mousedown = false
         } else {
-          if (this.clearSearchOnBlur) {
+          const { clearSearchOnSelect, multiple } = this;
+          if (this.clearSearchOnBlur({ clearSearchOnSelect, multiple })) {
             this.search = ''
           }
           this.closeSearchOptions()
@@ -990,7 +1015,7 @@
               'ref': 'search',
               'role': 'combobox',
               'type': 'search',
-              'autocomplete': 'off',
+              'autocomplete': this.autocomplete,
               'value': this.search,
             },
             events: {
@@ -1043,14 +1068,6 @@
           'vs--loading': this.mutableLoading,
           'vs--disabled': this.disabled
         }
-      },
-
-      /**
-       * If search text should clear on blur
-       * @return {Boolean} True when single and clearSearchOnSelect
-       */
-      clearSearchOnBlur() {
-        return this.clearSearchOnSelect && !this.multiple
       },
 
       /**
