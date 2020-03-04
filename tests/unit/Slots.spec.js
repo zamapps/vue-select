@@ -38,12 +38,14 @@ describe('Scoped Slots', () => {
   });
 
   describe('Slot: option', () => {
-    it('receives an option object in the option slot', () => {
+    it('receives an option object in the option slot', async () => {
       const {vm} = mountDefault(
         {value: 'one', options: ['one']},
         {scopedSlots: {option: receiveProps}},
       );
       vm.open = true;
+
+      await vm.$nextTick();
       expect(receivedSlotProps.label).toEqual('one');
       expect(receivedSlotProps.hasOwnProperty('attributes')).toBeTruthy();
       expect(receivedSlotProps.hasOwnProperty('events')).toBeTruthy();
