@@ -4,7 +4,7 @@
 
 <template>
   <div :dir="dir" class="v-select" :class="stateClasses">
-    <div ref="toggle" @mousedown.prevent="toggleDropdown" class="vs__dropdown-toggle">
+    <div :id="`vs${uid}__combobox`" ref="toggle" @mousedown.prevent="toggleDropdown" class="vs__dropdown-toggle" role="combobox" :aria-expanded="dropdownOpen.toString()" :aria-owns="`vs${uid}__listbox`" aria-label="Search for option">
 
       <div class="vs__selected-options" ref="selectedOptions">
         <slot v-for="option in selectedValue"
@@ -17,7 +17,7 @@
             <slot name="selected-option" v-bind="normalizeOptionForSlot(option)">
               {{ getOptionLabel(option) }}
             </slot>
-            <button v-if="multiple" :disabled="disabled" @click="deselect(option)" type="button" class="vs__deselect" aria-label="Deselect option" ref="deselectButtons">
+            <button v-if="multiple" :disabled="disabled" @click="deselect(option)" type="button" class="vs__deselect" :title="`Deselect ${getOptionLabel(option)}`" :aria-label="`Deselect ${getOptionLabel(option)}`" ref="deselectButtons">
               <component :is="childComponents.Deselect" />
             </button>
           </span>
@@ -35,7 +35,8 @@
           @click="clearSelection"
           type="button"
           class="vs__clear"
-          title="Clear selection"
+          title="Clear Selected"
+          aria-label="Clear Selected"
           ref="clearButton"
         >
           <component :is="childComponents.Deselect" />
@@ -52,23 +53,27 @@
     </div>
 
     <transition :name="transition">
-      <ul ref="dropdownMenu" v-if="dropdownOpen" class="vs__dropdown-menu" role="listbox" @mousedown.prevent="onMousedown" @mouseup="onMouseUp">
-        <li
-          role="option"
-          v-for="(option, index) in filteredOptions"
-          :key="getOptionKey(option)"
-          class="vs__dropdown-option"
-          :class="{ 'vs__dropdown-option--selected': isOptionSelected(option), 'vs__dropdown-option--highlight': index === typeAheadPointer, 'vs__dropdown-option--disabled': !selectable(option) }"
-          @mouseover="selectable(option) ? typeAheadPointer = index : null"
-          @mousedown.prevent.stop="selectable(option) ? select(option) : null"
-        >
-          <slot name="option" v-bind="normalizeOptionForSlot(option)">
-            {{ getOptionLabel(option) }}
-          </slot>
-        </li>
-        <li v-if="!filteredOptions.length" class="vs__no-options" @mousedown.stop="">
-          <slot name="no-options">Sorry, no matching options.</slot>
-        </li>
+      <ul ref="dropdownMenu" v-show="dropdownOpen" :id="`vs${uid}__listbox`" class="vs__dropdown-menu" role="listbox" @mousedown.prevent="onMousedown" @mouseup="onMouseUp">
+        <template v-if="dropdownOpen">
+          <li
+            role="option"
+            v-for="(option, index) in filteredOptions"
+            :key="getOptionKey(option)"
+            :id="`vs${uid}__option-${index}`"
+            class="vs__dropdown-option"
+            :class="{ 'vs__dropdown-option--selected': isOptionSelected(option), 'vs__dropdown-option--highlight': index === typeAheadPointer, 'vs__dropdown-option--disabled': !selectable(option) }"
+            :aria-selected="index === typeAheadPointer ? true : null"
+            @mouseover="selectable(option) ? typeAheadPointer = index : null"
+            @mousedown.prevent.stop="selectable(option) ? select(option) : null"
+          >
+            <slot name="option" v-bind="normalizeOptionForSlot(option)">
+              {{ getOptionLabel(option) }}
+            </slot>
+          </li>
+          <li v-if="!filteredOptions.length" class="vs__no-options" @mousedown.stop="">
+            <slot name="no-options">Sorry, no matching options.</slot>
+          </li>
+        </template>
       </ul>
     </transition>
   </div>
@@ -79,6 +84,7 @@
   import typeAheadPointer from '../mixins/typeAheadPointer'
   import ajax from '../mixins/ajax'
   import childComponents from './childComponents';
+  import uniqueId from '../utility/uniqueId';
 
   /**
    * @name VueSelect
@@ -516,6 +522,7 @@
 
     data() {
       return {
+        uid: uniqueId(),
         search: '',
         open: false,
         isComposing: false,
@@ -985,10 +992,11 @@
               'tabindex': this.tabindex,
               'readonly': !this.searchable,
               'id': this.inputId,
-              'aria-expanded': this.dropdownOpen,
-              'aria-label': 'Search for option',
+              'aria-autocomplete': 'list',
+              'aria-labelledby': `vs${this.uid}__combobox`,
+              'aria-controls': `vs${this.uid}__listbox`,
+              'aria-activedescendant': this.typeAheadPointer > -1 ? `vs${this.uid}__option-${this.typeAheadPointer}` : '',
               'ref': 'search',
-              'role': 'combobox',
               'type': 'search',
               'autocomplete': this.autocomplete,
               'value': this.search,
