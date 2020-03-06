@@ -9,8 +9,11 @@ export const text = {
     ariaLabel: 'Search for options'
   },
   selectedOption: {},
-  deselect: {
-    ariaLabel: 'Deselect Option'
+  deselectButton: {
+    ariaLabel: label => 'Deselect Option'
+  },
+  clearButton: {
+    ariaLabel: 'Clear Selection'
   }
 };
 
