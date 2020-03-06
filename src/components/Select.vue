@@ -4,7 +4,7 @@
 
 <template>
   <div :dir="dir" class="v-select" :class="stateClasses">
-    <div ref="toggle" @mousedown.prevent="toggleDropdown" class="vs__dropdown-toggle">
+    <div :id="`vs${uid}__combobox`" ref="toggle" @mousedown.prevent="toggleDropdown" class="vs__dropdown-toggle" role="combobox" :aria-expanded="dropdownOpen.toString()" :aria-owns="`vs${uid}__listbox`" :aria-label="i18n.search.ariaLabel">
 
       <div class="vs__selected-options" ref="selectedOptions">
         <slot v-for="option in selectedValue"
@@ -17,7 +17,7 @@
             <slot name="selected-option" v-bind="normalizeOptionForSlot(option)">
               {{ getOptionLabel(option) }}
             </slot>
-            <button v-if="multiple" :disabled="disabled" @click="deselect(option)" type="button" class="vs__deselect" :aria-label="i18n.deselect.ariaLabel">
+            <button v-if="multiple" :disabled="disabled" @click="deselect(option)" type="button" class="vs__deselect" :title="i18n.deselectButton.ariaLabel(getOptionLabel(option))" :aria-label="i18n.deselectButton.ariaLabel(getOptionLabel(option))" ref="deselectButtons">
               <component :is="childComponents.Deselect" />
             </button>
           </span>
@@ -28,14 +28,16 @@
         </slot>
       </div>
 
-      <div class="vs__actions">
+      <div class="vs__actions" ref="actions">
         <button
           v-show="showClearButton"
           :disabled="disabled"
           @click="clearSelection"
           type="button"
           class="vs__clear"
-          title="Clear selection"
+          title="i18n.clearButton.ariaLabel"
+          aria-label="i18n.clearButton.ariaLabel"
+          ref="clearButton"
         >
           <component :is="childComponents.Deselect" />
         </button>
@@ -51,23 +53,27 @@
     </div>
 
     <transition :name="transition">
-      <ul ref="dropdownMenu" v-if="dropdownOpen" class="vs__dropdown-menu" role="listbox" @mousedown.prevent="onMousedown" @mouseup="onMouseUp">
-        <li
-          role="option"
-          v-for="(option, index) in filteredOptions"
-          :key="getOptionKey(option)"
-          class="vs__dropdown-option"
-          :class="{ 'vs__dropdown-option--selected': isOptionSelected(option), 'vs__dropdown-option--highlight': index === typeAheadPointer, 'vs__dropdown-option--disabled': !selectable(option) }"
-          @mouseover="selectable(option) ? typeAheadPointer = index : null"
-          @mousedown.prevent.stop="selectable(option) ? select(option) : null"
-        >
-          <slot name="option" v-bind="normalizeOptionForSlot(option)">
-            {{ getOptionLabel(option) }}
-          </slot>
-        </li>
-        <li v-if="!filteredOptions.length" class="vs__no-options" @mousedown.stop="">
-          <slot name="no-options">{{ i18n.noOptions.text }}</slot>
-        </li>
+      <ul ref="dropdownMenu" v-show="dropdownOpen" :id="`vs${uid}__listbox`" class="vs__dropdown-menu" role="listbox" @mousedown.prevent="onMousedown" @mouseup="onMouseUp">
+        <template v-if="dropdownOpen">
+          <li
+            role="option"
+            v-for="(option, index) in filteredOptions"
+            :key="getOptionKey(option)"
+            :id="`vs${uid}__option-${index}`"
+            class="vs__dropdown-option"
+            :class="{ 'vs__dropdown-option--selected': isOptionSelected(option), 'vs__dropdown-option--highlight': index === typeAheadPointer, 'vs__dropdown-option--disabled': !selectable(option) }"
+            :aria-selected="index === typeAheadPointer ? true : null"
+            @mouseover="selectable(option) ? typeAheadPointer = index : null"
+            @mousedown.prevent.stop="selectable(option) ? select(option) : null"
+          >
+            <slot name="option" v-bind="normalizeOptionForSlot(option)">
+              {{ getOptionLabel(option) }}
+            </slot>
+          </li>
+          <li v-if="filteredOptions.length === 0" class="vs__no-options" @mousedown.stop="">
+            <slot name="no-options" v-bind="scope.noOptions">{{ i18n.noOptions.text }}</slot>
+          </li>
+        </template>
       </ul>
     </transition>
   </div>
@@ -79,6 +85,7 @@
   import ajax from '../mixins/ajax'
   import i18n from '../mixins/i18n'
   import childComponents from './childComponents';
+  import uniqueId from '../utility/uniqueId';
 
   /**
    * @name VueSelect
@@ -229,10 +236,11 @@
       },
 
       /**
-       * Decides wether an option is selectable or not. Not selectable options
+       * Decides whether an option is selectable or not. Not selectable options
        * are displayed but disabled and cannot be selected.
        *
        * @type {Function}
+       * @since 3.3.0
        * @param {Object|String} option
        * @return {Boolean}
        */
@@ -297,8 +305,7 @@
                 `to generate unique key. Please provide'getOptionKey' prop ` +
                 `to return a unique key for each option.\n` +
                 'https://vue-select.org/api/props.html#getoptionkey'
-              )
-              return null
+              );
             }
           }
         }
@@ -403,23 +410,37 @@
        */
       createOption: {
         type: Function,
-        default(newOption) {
-          if (typeof this.optionList[0] === 'object') {
-            newOption = {[this.label]: newOption}
-          }
-
-          this.$emit('option:created', newOption)
-          return newOption
-        }
+        default (option) {
+          return (typeof this.optionList[0] === 'object') ? {[this.label]: option} : option;
+        },
       },
 
       /**
-       * When false, updating the options will not reset the select value
-       * @type {Boolean}
+       * When false, updating the options will not reset the selected value. Accepts
+       * a `boolean` or `function` that returns a `boolean`. If defined as a function,
+       * it will receive the params listed below.
+       *
+       * @since 3.4 - Type changed to {Boolean|Function}
+       *
+       * @type {Boolean|Function}
+       * @param {Array} newOptions
+       * @param {Array} oldOptions
+       * @param {Array} selectedValue
        */
       resetOnOptionsChange: {
-        type: Boolean,
-        default: false
+        default: false,
+        validator: (value) => ['function', 'boolean'].includes(typeof value)
+      },
+
+      /**
+       * If search text should clear on blur
+       * @return {Boolean} True when single and clearSearchOnSelect
+       */
+      clearSearchOnBlur: {
+        type: Function,
+        default: function ({ clearSearchOnSelect, multiple }) {
+          return clearSearchOnSelect && !multiple
+        }
       },
 
       /**
@@ -502,6 +523,7 @@
 
     data() {
       return {
+        uid: uniqueId(),
         search: '',
         open: false,
         isComposing: false,
@@ -518,13 +540,17 @@
        * is correct.
        * @return {[type]} [description]
        */
-      options(val) {
-        if (!this.taggable && this.resetOnOptionsChange) {
-          this.clearSelection()
+      options (newOptions, oldOptions) {
+        let shouldReset = () => typeof this.resetOnOptionsChange === 'function'
+          ? this.resetOnOptionsChange(newOptions, oldOptions, this.selectedValue)
+          : this.resetOnOptionsChange;
+
+        if (!this.taggable && shouldReset()) {
+          this.clearSelection();
         }
 
         if (this.value && this.isTrackingValues) {
-          this.setInternalValueFromOptions(this.value)
+          this.setInternalValueFromOptions(this.value);
         }
       },
 
@@ -582,7 +608,8 @@
       select(option) {
         if (!this.isOptionSelected(option)) {
           if (this.taggable && !this.optionExists(option)) {
-            option = this.createOption(option)
+            option = this.createOption(option);
+            this.$emit('option:created', option);
           }
           if (this.multiple) {
             option = this.selectedValue.concat(option)
@@ -658,31 +685,23 @@
        * @param  {Event} e
        * @return {void}
        */
-      toggleDropdown (e) {
-        const target = e.target;
-        const toggleTargets = [
-          this.$el,
-          this.searchEl,
-          this.$refs.toggle,
+      toggleDropdown ({target}) {
+        //  don't react to click on deselect/clear buttons,
+        //  they dropdown state will be set in their click handlers
+        const ignoredButtons = [
+          ...(this.$refs['deselectButtons'] || []),
+          ...([this.$refs['clearButton']] || [])
         ];
 
-        if (typeof this.$refs.openIndicator !== 'undefined') {
-          toggleTargets.push(
-            this.$refs.openIndicator.$el,
-            // the line below is a bit gross, but required to support IE11 without adding polyfills
-            ...Array.prototype.slice.call(this.$refs.openIndicator.$el.childNodes),
-          );
+        if (ignoredButtons.some(ref => ref.contains(target) || ref === target)) {
+          return;
         }
 
-        if (toggleTargets.indexOf(target) > -1 || target.classList.contains('vs__selected')) {
-          if (this.open) {
-            this.searchEl.blur(); // dropdown will close on blur
-          } else {
-            if (!this.disabled) {
-              this.open = true;
-              this.searchEl.focus();
-            }
-          }
+        if (this.open) {
+          this.searchEl.blur();
+        } else if (!this.disabled) {
+          this.open = true;
+          this.searchEl.focus();
         }
       },
 
@@ -826,7 +845,8 @@
         if (this.mousedown && !this.searching) {
           this.mousedown = false
         } else {
-          if (this.clearSearchOnBlur) {
+          const { clearSearchOnSelect, multiple } = this;
+          if (this.clearSearchOnBlur({ clearSearchOnSelect, multiple })) {
             this.search = ''
           }
           this.closeSearchOptions()
@@ -973,12 +993,13 @@
               'tabindex': this.tabindex,
               'readonly': !this.searchable,
               'id': this.inputId,
-              'aria-expanded': this.dropdownOpen,
-              'aria-label': this.i18n.search.ariaLabel,
+              'aria-autocomplete': 'list',
+              'aria-labelledby': `vs${this.uid}__combobox`,
+              'aria-controls': `vs${this.uid}__listbox`,
+              'aria-activedescendant': this.typeAheadPointer > -1 ? `vs${this.uid}__option-${this.typeAheadPointer}` : '',
               'ref': 'search',
-              'role': 'combobox',
               'type': 'search',
-              'autocomplete': 'off',
+              'autocomplete': this.autocomplete,
               'value': this.search,
             },
             events: {
@@ -992,6 +1013,10 @@
           },
           spinner: {
             loading: this.mutableLoading
+          },
+          noOptions: {
+            search: this.search,
+            searching: this.searching,
           },
           openIndicator: {
             attributes: {
@@ -1031,14 +1056,6 @@
           'vs--loading': this.mutableLoading,
           'vs--disabled': this.disabled
         }
-      },
-
-      /**
-       * If search text should clear on blur
-       * @return {Boolean} True when single and clearSearchOnSelect
-       */
-      clearSearchOnBlur() {
-        return this.clearSearchOnSelect && !this.multiple
       },
 
       /**

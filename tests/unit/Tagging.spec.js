@@ -80,6 +80,20 @@ describe("When Tagging Is Enabled", () => {
     expect(Select.vm.optionList).toEqual(["one", "two", "three"]);
   });
 
+  it("should pushTags even if the consumer has defined a createOption callback", () => {
+    const Select = selectWithProps({
+      pushTags: true,
+      taggable: true,
+      createOption: option => option,
+      options: ["one", "two"]
+    });
+
+    searchSubmit(Select, "three");
+
+    expect(Select.vm.pushedTags).toEqual(["three"]);
+    expect(Select.vm.optionList).toEqual(["one", "two", "three"]);
+  });
+
   it("should add a freshly created option/tag to the options list when pushTags is true and filterable is false", () => {
     const Select = selectWithProps({
       filterable: false,
@@ -139,7 +153,7 @@ describe("When Tagging Is Enabled", () => {
     expect(Select.vm.selectedValue).toEqual([two]);
   });
 
-  it("should select an existing option if the search string matches an objects label from options", () => {
+  it("should select an existing option if the search string matches an objects label from options", async () => {
     let two = { label: "two" };
     const Select = selectWithProps({
       taggable: true,
@@ -147,12 +161,13 @@ describe("When Tagging Is Enabled", () => {
     });
 
     Select.vm.search = "two";
+    await Select.vm.$nextTick();
 
     searchSubmit(Select);
     expect(Select.vm.selectedValue).toEqual([two]);
   });
 
-  it("should select an existing option if the search string matches an objects label from options when filter-options is false", () => {
+  it("should select an existing option if the search string matches an objects label from options when filter-options is false", async () => {
     let two = { label: "two" };
     const Select = selectWithProps({
       taggable: true,
@@ -161,6 +176,7 @@ describe("When Tagging Is Enabled", () => {
     });
 
     Select.vm.search = "two";
+    await Select.vm.$nextTick();
 
     searchSubmit(Select);
     expect(Select.vm.selectedValue).toEqual([two]);

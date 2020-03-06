@@ -120,6 +120,19 @@ clearSearchOnSelect: {
 },
 ```
 
+## clearSearchOnBlur
+
+Enables/disables clearing the search text when the search input is blurred.
+
+```js
+clearSearchOnBlur: {
+    type: Function,
+    default: function ({ clearSearchOnSelect, multiple }) {
+      return clearSearchOnSelect && !multiple
+    }
+},
+```
+
 ## closeOnSelect
 
 Close a dropdown when an option is chosen. Set to false to keep the dropdown
@@ -339,12 +352,22 @@ createOption: {
 
 ## resetOnOptionsChange
 
-When false, updating the options will not reset the select value
+When false, updating the options will not reset the selected value.
+ 
+Since `v3.4+` the prop accepts either a `boolean` or `function` that returns a `boolean`. 
+
+If defined as a function, it will receive the params listed below. 
 
 ```js
+/**
+* @type {Boolean|Function}
+* @param {Array} newOptions
+* @param {Array} oldOptions
+* @param {Array} selectedValue
+*/
 resetOnOptionsChange: {
-	type: Boolean,
-	default: false
+    default: false,
+    validator: (value) => ['function', 'boolean'].includes(typeof value)
 },
 ```
 
