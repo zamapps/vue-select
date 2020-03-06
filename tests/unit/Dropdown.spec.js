@@ -2,7 +2,7 @@ import { mountDefault, selectWithProps } from '../helpers';
 import OpenIndicator from "../../src/components/OpenIndicator";
 
 describe("Toggling Dropdown", () => {
-  fdescribe('focusing on the button wrapper', () => {
+  describe('focusing on the button wrapper', () => {
     test('when the search is focused buttonIsFocused is false', () => {
       const Select = mountDefault();
       Select.vm.$refs.search.focus();
@@ -144,14 +144,18 @@ describe("Toggling Dropdown", () => {
     expect(Select.vm.stateClasses['vs--open']).toEqual(true);
   });
 
-  it("should not display the dropdown if noDrop is true", () => {
+  it("should not display the dropdown if noDrop is true", async () => {
     const Select = selectWithProps({
       noDrop: true,
     });
 
     Select.vm.maybeToggleDropdown({ target: Select.vm.$refs.search });
     expect(Select.vm.open).toEqual(true);
-    expect(Select.contains('.vs__dropdown-menu')).toBeFalsy();
+    await Select.vm.$nextTick();
+
+    expect(Select.find('.vs__dropdown-menu').element.style['display']).toEqual('none');
+    expect(Select.contains('.vs__dropdown-option')).toBeFalsy();
+    expect(Select.contains('.vs__no-options')).toBeFalsy();
     expect(Select.vm.stateClasses['vs--open']).toBeFalsy();
   });
 

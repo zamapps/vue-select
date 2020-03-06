@@ -3,8 +3,21 @@
 </style>
 
 <template>
-    <button :tabindex="tabindex" type="button" @keydown="keypressWhileToggleIsFocused" ref="toggle" @mousedown.prevent="maybeToggleDropdown" class="v-select vs__dropdown-toggle" :dir="dir" :class="stateClasses">
-
+  <button
+    type="button"
+    ref="toggle"
+    :dir="dir"
+    role="combobox"
+    :id="`vs${uid}__combobox`"
+    :tabindex="tabindex"
+    :aria-expanded="dropdownOpen.toString()"
+    :aria-owns="`vs${uid}__listbox`"
+    aria-label="Search for option"
+    class="v-select vs__dropdown-toggle"
+    :class="stateClasses"
+    @keydown="keypressWhileToggleIsFocused"
+    @mousedown.prevent="maybeToggleDropdown"
+  >
       <div class="vs__selected-options" ref="selectedOptions">
         <slot v-for="option in selectedValue"
               name="selected-option-container"
@@ -16,7 +29,7 @@
             <slot name="selected-option" v-bind="normalizeOptionForSlot(option)">
               {{ getOptionLabel(option) }}
             </slot>
-            <button v-if="multiple" :disabled="disabled" @click="deselect(option)" type="button" class="vs__deselect" aria-label="Deselect option" ref="deselectButtons">
+            <button v-if="multiple" :disabled="disabled" @click="deselect(option)" type="button" class="vs__deselect" :title="`Deselect ${getOptionLabel(option)}`" :aria-label="`Deselect ${getOptionLabel(option)}`" ref="deselectButtons">
               <component :is="childComponents.Deselect" />
             </button>
           </span>
@@ -34,7 +47,8 @@
           @click="clearSelection"
           type="button"
           class="vs__clear"
-          title="Clear selection"
+          title="Clear Selected"
+          aria-label="Clear Selected"
           ref="clearButton"
         >
           <component :is="childComponents.Deselect" />
@@ -49,23 +63,27 @@
         </slot>
       </div>
     <transition :name="transition">
-      <ul ref="dropdownMenu" v-if="dropdownOpen" class="vs__dropdown-menu" role="listbox" @mousedown.prevent="onMousedown" @mouseup="onMouseUp">
-        <li
-          role="option"
-          v-for="(option, index) in filteredOptions"
-          :key="getOptionKey(option)"
-          class="vs__dropdown-option"
-          :class="{ 'vs__dropdown-option--selected': isOptionSelected(option), 'vs__dropdown-option--highlight': index === typeAheadPointer, 'vs__dropdown-option--disabled': !selectable(option) }"
-          @mouseover="selectable(option) ? typeAheadPointer = index : null"
-          @mousedown.prevent.stop="selectable(option) ? select(option) : null"
-        >
-          <slot name="option" v-bind="normalizeOptionForSlot(option)">
-            {{ getOptionLabel(option) }}
-          </slot>
-        </li>
-        <li v-if="!filteredOptions.length" class="vs__no-options" @mousedown.stop="">
-          <slot name="no-options">Sorry, no matching options.</slot>
-        </li>
+      <ul ref="dropdownMenu" v-show="dropdownOpen" :id="`vs${uid}__listbox`" class="vs__dropdown-menu" role="listbox" @mousedown.prevent="onMousedown" @mouseup="onMouseUp">
+        <template v-if="dropdownOpen">
+          <li
+            role="option"
+            v-for="(option, index) in filteredOptions"
+            :key="getOptionKey(option)"
+            :id="`vs${uid}__option-${index}`"
+            class="vs__dropdown-option"
+            :class="{ 'vs__dropdown-option--selected': isOptionSelected(option), 'vs__dropdown-option--highlight': index === typeAheadPointer, 'vs__dropdown-option--disabled': !selectable(option) }"
+            :aria-selected="index === typeAheadPointer ? true : null"
+            @mouseover="selectable(option) ? typeAheadPointer = index : null"
+            @mousedown.prevent.stop="selectable(option) ? select(option) : null"
+          >
+            <slot name="option" v-bind="normalizeOptionForSlot(option)">
+              {{ getOptionLabel(option) }}
+            </slot>
+          </li>
+          <li v-if="filteredOptions.length === 0" class="vs__no-options" @mousedown.stop="">
+            <slot name="no-options" v-bind="scope.noOptions">Sorry, no matching options.</slot>
+          </li>
+        </template>
       </ul>
     </transition>
   </button>
@@ -77,6 +95,7 @@
   import typeAheadPointer from '../mixins/typeAheadPointer'
   import ajax from '../mixins/ajax'
   import childComponents from './childComponents';
+  import uniqueId from '../utility/uniqueId';
 
   /**
    * @name VueSelect
@@ -424,6 +443,17 @@
       },
 
       /**
+       * If search text should clear on blur
+       * @return {Boolean} True when single and clearSearchOnSelect
+       */
+      clearSearchOnBlur: {
+        type: Function,
+        default: function ({ clearSearchOnSelect, multiple }) {
+          return clearSearchOnSelect && !multiple
+        }
+      },
+
+      /**
        * Disable the dropdown entirely.
        * @type {Boolean}
        */
@@ -503,6 +533,7 @@
 
     data() {
       return {
+        uid: uniqueId(),
         search: '',
         open: false,
         isComposing: false,
@@ -829,7 +860,8 @@
         if (this.mousedown && !this.searching) {
           this.mousedown = false
         } else {
-          if (this.clearSearchOnBlur) {
+          const { clearSearchOnSelect, multiple } = this;
+          if (this.clearSearchOnBlur({ clearSearchOnSelect, multiple })) {
             this.search = ''
           }
           this.closeSearchOptions();
@@ -1002,10 +1034,11 @@
               'tabindex': '-1',
               'readonly': !this.searchable,
               'id': this.inputId,
-              'aria-expanded': this.dropdownOpen,
-              'aria-label': 'Search for option',
+              'aria-autocomplete': 'list',
+              'aria-labelledby': `vs${this.uid}__combobox`,
+              'aria-controls': `vs${this.uid}__listbox`,
+              'aria-activedescendant': this.typeAheadPointer > -1 ? `vs${this.uid}__option-${this.typeAheadPointer}` : '',
               'ref': 'search',
-              'role': 'combobox',
               'type': 'search',
               'autocomplete': this.autocomplete,
               'value': this.search,
@@ -1021,6 +1054,10 @@
           },
           spinner: {
             loading: this.mutableLoading
+          },
+          noOptions: {
+            search: this.search,
+            searching: this.searching,
           },
           openIndicator: {
             attributes: {
@@ -1060,14 +1097,6 @@
           'vs--loading': this.mutableLoading,
           'vs--disabled': this.disabled
         }
-      },
-
-      /**
-       * If search text should clear on blur
-       * @return {Boolean} True when single and clearSearchOnSelect
-       */
-      clearSearchOnBlur() {
-        return this.clearSearchOnSelect && !this.multiple
       },
 
       /**
