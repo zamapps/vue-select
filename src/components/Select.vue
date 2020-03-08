@@ -53,28 +53,27 @@
     </div>
 
     <transition :name="transition">
-      <ul ref="dropdownMenu" v-show="dropdownOpen" :id="`vs${uid}__listbox`" class="vs__dropdown-menu" role="listbox" @mousedown.prevent="onMousedown" @mouseup="onMouseUp">
-        <template v-if="dropdownOpen">
-          <li
-            role="option"
-            v-for="(option, index) in filteredOptions"
-            :key="getOptionKey(option)"
-            :id="`vs${uid}__option-${index}`"
-            class="vs__dropdown-option"
-            :class="{ 'vs__dropdown-option--selected': isOptionSelected(option), 'vs__dropdown-option--highlight': index === typeAheadPointer, 'vs__dropdown-option--disabled': !selectable(option) }"
-            :aria-selected="index === typeAheadPointer ? true : null"
-            @mouseover="selectable(option) ? typeAheadPointer = index : null"
-            @mousedown.prevent.stop="selectable(option) ? select(option) : null"
-          >
-            <slot name="option" v-bind="normalizeOptionForSlot(option)">
-              {{ getOptionLabel(option) }}
-            </slot>
-          </li>
-          <li v-if="filteredOptions.length === 0" class="vs__no-options" @mousedown.stop="">
-            <slot name="no-options" v-bind="scope.noOptions">Sorry, no matching options.</slot>
-          </li>
-        </template>
+      <ul ref="dropdownMenu" v-if="dropdownOpen" :id="`vs${uid}__listbox`" class="vs__dropdown-menu" role="listbox" @mousedown.prevent="onMousedown" @mouseup="onMouseUp" v-append-to-body>
+        <li
+          role="option"
+          v-for="(option, index) in filteredOptions"
+          :key="getOptionKey(option)"
+          :id="`vs${uid}__option-${index}`"
+          class="vs__dropdown-option"
+          :class="{ 'vs__dropdown-option--selected': isOptionSelected(option), 'vs__dropdown-option--highlight': index === typeAheadPointer, 'vs__dropdown-option--disabled': !selectable(option) }"
+          :aria-selected="index === typeAheadPointer ? true : null"
+          @mouseover="selectable(option) ? typeAheadPointer = index : null"
+          @mousedown.prevent.stop="selectable(option) ? select(option) : null"
+        >
+          <slot name="option" v-bind="normalizeOptionForSlot(option)">
+            {{ getOptionLabel(option) }}
+          </slot>
+        </li>
+        <li v-if="filteredOptions.length === 0" class="vs__no-options" @mousedown.stop="">
+          <slot name="no-options" v-bind="scope.noOptions">Sorry, no matching options.</slot>
+        </li>
       </ul>
+      <ul v-else :id="`vs${uid}__listbox`" role="listbox" style="display: none; visibility: hidden;"></ul>
     </transition>
   </div>
 </template>
@@ -84,6 +83,7 @@
   import typeAheadPointer from '../mixins/typeAheadPointer'
   import ajax from '../mixins/ajax'
   import childComponents from './childComponents';
+  import appendToBody from '../directives/appendToBody';
   import uniqueId from '../utility/uniqueId';
 
   /**
@@ -93,6 +93,8 @@
     components: {...childComponents},
 
     mixins: [pointerScroll, typeAheadPointer, ajax],
+
+    directives: {appendToBody},
 
     props: {
       /**
@@ -517,6 +519,40 @@
          * @return {Object}
          */
         default: (map, vm) => map,
+      },
+
+      /**
+       * Append the dropdown element to the end of the body
+       * and size/position it dynamically. Use it if you have
+       * overflow or z-index issues.
+       * @type {Boolean}
+       */
+      appendToBody: {
+        type: Boolean,
+        default: false
+      },
+
+      /**
+       * When `appendToBody` is true, this function
+       * is responsible for positioning the drop
+       * down list.
+       * @since v3.7.0
+       * @see http://vue-select.org/guide/positioning.html
+       */
+      calculatePosition: {
+        type: Function,
+        /**
+         * @param dropdownList {HTMLUListElement}
+         * @param component {Vue} current instance of vue select
+         * @param width {string} calculated width in pixels of the dropdown menu
+         * @param top {string} absolute position top value in pixels relative to the document
+         * @param left {string} absolute position left value in pixels relative to the document
+         */
+        default(dropdownList, component, {width, top, left}) {
+          dropdownList.style.top = top;
+          dropdownList.style.left = left;
+          dropdownList.style.width = width;
+        }
       }
     },
 
