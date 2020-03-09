@@ -84,6 +84,7 @@
   import ajax from '../mixins/ajax'
   import childComponents from './childComponents';
   import appendToBody from '../directives/appendToBody';
+  import sortAndStringify from '../utility/sortAndStringify'
   import uniqueId from '../utility/uniqueId';
 
   /**
@@ -281,12 +282,16 @@
       },
 
       /**
-       * Callback to get an option key. If {option}
-       * is an object and has an {id}, returns {option.id}
-       * by default, otherwise tries to serialize {option}
-       * to JSON.
+       * Generate a unique identifier for each option. If `option`
+       * is an object and `option.hasOwnProperty('id')` exists,
+       * `option.id` is used by default, otherwise the option
+       * will be serialized to JSON.
        *
-       * The key must be unique for an option.
+       * If you are supplying a lot of options, you should
+       * provide your own keys, as JSON.stringify can be
+       * slow with lots of objects.
+       *
+       * The result of this function *must* be unique.
        *
        * @type {Function}
        * @param  {Object || String} option
@@ -294,22 +299,21 @@
        */
       getOptionKey: {
         type: Function,
-        default(option) {
-          if (typeof option === 'object' && option.id) {
-            return option.id
-          } else {
-            try {
-              return JSON.stringify(option)
-            } catch(e) {
-              return console.warn(
-                `[vue-select warn]: Could not stringify option ` +
-                `to generate unique key. Please provide'getOptionKey' prop ` +
-                `to return a unique key for each option.\n` +
-                'https://vue-select.org/api/props.html#getoptionkey'
-              );
-            }
+        default (option) {
+          if (typeof option !== 'object') {
+            return option;
           }
-        }
+
+          try {
+            return option.hasOwnProperty('id') ? option.id : sortAndStringify(option);
+          } catch (e) {
+            const warning = `[vue-select warn]: Could not stringify this option ` +
+              `to generate unique key. Please provide'getOptionKey' prop ` +
+              `to return a unique key for each option.\n` +
+              'https://vue-select.org/api/props.html#getoptionkey';
+            return console.warn(warning, option, e);
+          }
+        },
       },
 
       /**
@@ -393,7 +397,7 @@
        * @return {Boolean}
        */
       filter: {
-        "type": Function,
+        type: Function,
         default(options, search) {
           return options.filter((option) => {
             let label = this.getOptionLabel(option)
@@ -643,7 +647,6 @@
       select(option) {
         if (!this.isOptionSelected(option)) {
           if (this.taggable && !this.optionExists(option)) {
-            option = this.createOption(option);
             this.$emit('option:created', option);
           }
           if (this.multiple) {
@@ -746,38 +749,18 @@
        * @return {Boolean}        True when selected | False otherwise
        */
       isOptionSelected(option) {
-        return this.selectedValue.some(value => {
-          return this.optionComparator(value, option)
-        })
+        return this.selectedValue.some(value => this.optionComparator(value, option))
       },
 
       /**
        * Determine if two option objects are matching.
        *
-       * @param value {Object}
-       * @param option {Object}
+       * @param a {Object}
+       * @param b {Object}
        * @returns {boolean}
        */
-      optionComparator(value, option) {
-        if (typeof value !== 'object' && typeof option !== 'object') {
-          // Comparing primitives
-          if (value === option) {
-            return true
-          }
-        } else {
-          // Comparing objects
-          if (value === this.reduce(option)) {
-            return true
-          }
-          if ((this.getOptionLabel(value) === this.getOptionLabel(option)) || (this.getOptionLabel(value) === option)) {
-            return true
-          }
-          if (this.reduce(value) === this.reduce(option)) {
-            return true
-          }
-        }
-
-        return false;
+      optionComparator(a, b) {
+        return this.getOptionKey(a) === this.getOptionKey(b);
       },
 
       /**
@@ -825,14 +808,7 @@
        * @return {boolean}
        */
       optionExists(option) {
-        return this.optionList.some(opt => {
-          if (typeof opt === 'object' && this.getOptionLabel(opt) === option) {
-            return true
-          } else if (opt === option) {
-            return true
-          }
-          return false
-        })
+        return this.optionList.some(_option => this.optionComparator(_option, option))
       },
 
       /**
@@ -1138,7 +1114,7 @@
         }
 
         let options = this.search.length ? this.filter(optionList, this.search, this) : optionList;
-        if (this.taggable && this.search.length && !this.optionExists(this.search)) {
+        if (this.taggable && this.search.length && !this.optionExists(this.createOption(this.search))) {
           options.unshift(this.search)
         }
         return options
@@ -1158,7 +1134,7 @@
        */
       showClearButton() {
         return !this.multiple && this.clearable && !this.open && !this.isValueEmpty
-      }
+      },
     },
 
   }
