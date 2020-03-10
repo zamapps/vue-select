@@ -4,6 +4,7 @@
 
 <template>
   <div :dir="dir" class="v-select" :class="stateClasses">
+    <slot name="header" v-bind="scope.header" />
     <div :id="`vs${uid}__combobox`" ref="toggle" @mousedown.prevent="toggleDropdown" class="vs__dropdown-toggle" role="combobox" :aria-expanded="dropdownOpen.toString()" :aria-owns="`vs${uid}__listbox`" aria-label="Search for option">
 
       <div class="vs__selected-options" ref="selectedOptions">
@@ -51,9 +52,9 @@
         </slot>
       </div>
     </div>
-
     <transition :name="transition">
       <ul ref="dropdownMenu" v-if="dropdownOpen" :id="`vs${uid}__listbox`" class="vs__dropdown-menu" role="listbox" @mousedown.prevent="onMousedown" @mouseup="onMouseUp" v-append-to-body>
+        <slot name="list-header" v-bind="scope.listHeader" />
         <li
           role="option"
           v-for="(option, index) in filteredOptions"
@@ -72,9 +73,11 @@
         <li v-if="filteredOptions.length === 0" class="vs__no-options" @mousedown.stop="">
           <slot name="no-options" v-bind="scope.noOptions">Sorry, no matching options.</slot>
         </li>
+        <slot name="list-footer" v-bind="scope.listFooter" />
       </ul>
       <ul v-else :id="`vs${uid}__listbox`" role="listbox" style="display: none; visibility: hidden;"></ul>
     </transition>
+    <slot name="footer" v-bind="scope.footer" />
   </div>
 </template>
 
@@ -1001,6 +1004,12 @@
        * @returns {Object}
        */
       scope () {
+        const listSlot = {
+          search: this.search,
+          loading: this.loading,
+          searching: this.searching,
+          filteredOptions: this.filteredOptions
+        };
         return {
           search: {
             attributes: {
@@ -1032,6 +1041,7 @@
           },
           noOptions: {
             search: this.search,
+            loading: this.loading,
             searching: this.searching,
           },
           openIndicator: {
@@ -1041,6 +1051,10 @@
               'class': 'vs__open-indicator',
             },
           },
+          listHeader: listSlot,
+          listFooter: listSlot,
+          header: { ...listSlot, deselect: this.deselect },
+          footer: { ...listSlot, deselect: this.deselect }
         };
       },
 
