@@ -629,7 +629,7 @@
         this.setInternalValueFromOptions(this.value)
       }
 
-      this.$on('option:created', this.maybePushTag)
+      this.$on('option:created', this.pushTag)
     },
 
     methods: {
@@ -662,7 +662,6 @@
           }
           this.updateValue(option);
         }
-
         this.onAfterSelect(option)
       },
 
@@ -772,7 +771,7 @@
       },
 
       /**
-       * Finds an option from this.options
+       * Finds an option from the options
        * where a reduced value matches
        * the passed in value.
        *
@@ -780,7 +779,24 @@
        * @returns {*}
        */
       findOptionFromReducedValue (value) {
-        return this.options.find(option => JSON.stringify(this.reduce(option)) === JSON.stringify(value)) || value;
+        const predicate = option => JSON.stringify(this.reduce(option)) === JSON.stringify(value);
+
+        const matches = [
+          ...this.options,
+          ...this.pushedTags,
+        ].filter(predicate);
+
+        if (matches.length === 1) {
+          return matches[0];
+        }
+
+        /**
+         * This second loop is needed to cover an edge case where `taggable` + `reduce`
+         * were used in conjunction with a `create-option` that doesn't create a
+         * unique reduced value.
+         * @see https://github.com/sagalbot/vue-select/issues/1089#issuecomment-597238735
+         */
+        return matches.find(match => this.optionComparator(match, this.$data._value)) || value;
       },
 
       /**
@@ -836,10 +852,8 @@
        * @param  {Object || String} option
        * @return {void}
        */
-      maybePushTag(option) {
-        if (this.pushTags) {
-          this.pushedTags.push(option)
-        }
+      pushTag (option) {
+        this.pushedTags.push(option);
       },
 
       /**
@@ -986,7 +1000,7 @@
        * @return {Array}
        */
       optionList () {
-        return this.options.concat(this.pushedTags);
+        return this.options.concat(this.pushTags ? this.pushedTags : []);
       },
 
       /**
