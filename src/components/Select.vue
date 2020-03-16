@@ -819,7 +819,7 @@
        * @return {this.value}
        */
       maybeDeleteValue() {
-        if (!this.searchEl.value.length && this.selectedValue && this.clearable) {
+        if (!this.searchEl.value.length && this.selectedValue && this.selectedValue.length && this.clearable) {
           let value = null;
           if (this.multiple) {
             value = [...this.selectedValue.slice(0, this.selectedValue.length - 1)]
@@ -939,7 +939,7 @@
         };
 
         const defaults = {
-          //  delete
+          //  backspace
           8: e => this.maybeDeleteValue(),
           //  tab
           9: e => this.onTab(),
