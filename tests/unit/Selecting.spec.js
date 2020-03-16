@@ -193,7 +193,17 @@ describe("VS - Selecting Values", () => {
         value: [{ label: "foo", value: "bar" }]
       }
     });
-    expect(Select.vm.isOptionSelected("foo")).toEqual(true);
+    expect(Select.vm.isOptionSelected({ label: "foo", value: "bar" })).toEqual(true);
+  });
+
+  it('can select two options with the same label', () => {
+    const options = [{label: 'one', id: 1}, {label: 'one', id: 2}];
+    const Select = mountDefault({options, multiple: true});
+
+    Select.vm.select({label: 'one', id: 1});
+    Select.vm.select({label: 'one', id: 2});
+
+    expect(Select.vm.selectedValue).toEqual(options);
   });
 
   describe("input Event", () => {
