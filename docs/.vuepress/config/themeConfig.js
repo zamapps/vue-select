@@ -22,6 +22,7 @@ module.exports = {
           ['guide/install', 'Installation'],
           ['guide/options', 'Dropdown Options'],
           ['guide/values', 'Selecting Values'],
+          ['guide/tagging', 'Tagging'],
           ['guide/upgrading', 'Upgrading 2.x to 3.x'],
         ],
       },
