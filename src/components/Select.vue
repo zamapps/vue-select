@@ -5,7 +5,7 @@
 <template>
   <div :dir="dir" class="v-select" :class="stateClasses">
     <slot name="header" v-bind="scope.header" />
-    <div :id="`vs${uid}__combobox`" ref="toggle" @mousedown.prevent="toggleDropdown" class="vs__dropdown-toggle" role="combobox" :aria-expanded="dropdownOpen.toString()" :aria-owns="`vs${uid}__listbox`" aria-label="Search for option">
+    <div :id="`vs${uid}__combobox`" ref="toggle" @mousedown="toggleDropdown($event)" class="vs__dropdown-toggle" role="combobox" :aria-expanded="dropdownOpen.toString()" :aria-owns="`vs${uid}__listbox`" aria-label="Search for option">
 
       <div class="vs__selected-options" ref="selectedOptions">
         <slot v-for="option in selectedValue"
@@ -731,22 +731,28 @@
 
       /**
        * Toggle the visibility of the dropdown menu.
-       * @param  {Event} e
+       * @param  {Event} event
        * @return {void}
        */
-      toggleDropdown ({target}) {
+      toggleDropdown (event) {
+        const targetIsNotSearch = event.target !== this.$refs.search;
+        if (targetIsNotSearch) {
+          event.preventDefault();
+        }
+
         //  don't react to click on deselect/clear buttons,
         //  they dropdown state will be set in their click handlers
         const ignoredButtons = [
           ...(this.$refs['deselectButtons'] || []),
-          ...([this.$refs['clearButton']] || [])
+          ...([this.$refs['clearButton']] || []),
         ];
 
-        if (ignoredButtons.some(ref => ref.contains(target) || ref === target)) {
+        if (ignoredButtons.some(ref => ref.contains(event.target) || ref === event.target)) {
+          event.preventDefault();
           return;
         }
 
-        if (this.open) {
+        if (this.open && targetIsNotSearch) {
           this.searchEl.blur();
         } else if (!this.disabled) {
           this.open = true;
