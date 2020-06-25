@@ -100,19 +100,36 @@ describe("When reduce prop is defined", () => {
     expect(Select.vm.selectedValue).toEqual([]);
   });
 
-  it("can use v-model syntax for a two way binding to a parent component", () => {
+  it("can use v-model syntax for a two way binding to a parent component", async () => {
     const Parent = mount({
       data: () => ({
         reduce: option => option.value,
-        value: "foo",
+        current: "foo",
         options: [
           { label: "This is Foo", value: "foo" },
           { label: "This is Bar", value: "bar" },
           { label: "This is Baz", value: "baz" }
         ]
       }),
-      template: `<div><v-select :reduce="option => option.value" :options="options" v-model="value"></v-select></div>`,
-      components: { "v-select": VueSelect }
+      components: { "v-select": VueSelect },
+      computed: {
+        value: {
+          get() {
+            return this.current;
+          },
+          set(value) {
+            if (value == 'baz') return;
+            this.current = value;
+          }
+        }
+      },
+      template: `
+        <v-select
+          v-model="value"
+          :reduce="option => option.value"
+          :options="options"
+        />
+      `
     });
     const Select = Parent.vm.$children[0];
 
@@ -120,7 +137,15 @@ describe("When reduce prop is defined", () => {
     expect(Select.selectedValue).toEqual([{ label: "This is Foo", value: "foo" }]);
 
     Select.select({ label: "This is Bar", value: "bar" });
+    await Select.$nextTick();
     expect(Parent.vm.value).toEqual("bar");
+    expect(Select.selectedValue).toEqual([{ label: "This is Bar", value: "bar" }]);
+
+    // Parent denies to set baz
+    Select.select({ label: "This is Baz", value: "baz" });
+    await Select.$nextTick();
+    expect(Select.selectedValue).toEqual([{ label: "This is Bar", value: "bar" }]);
+    expect(Parent.vm.value).toEqual('bar');
   });
 
   it("can generate labels using a custom label key", () => {
