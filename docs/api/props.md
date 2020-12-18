@@ -120,7 +120,7 @@ searchable: {
 
 The `selectable` prop determines if an option is selectable or not. If `selectable` returns false
 for a given option, it will be displayed with a `vs__dropdown-option--disabled` class. The option
-will be disabled and unable to be selected. 
+will be disabled and unable to be selected.
 
 ```js
 selectable: {
@@ -389,10 +389,10 @@ if the option should be displayed.
 
 ```js
 filterBy: {
-	type: Function,
-	default(option, label, search) {
-		return (label | "").toLowerCase().indexOf(search.toLowerCase()) > -1;
-	}
+  type: Function,
+  default(option, label, search) {
+    return (label || '').toLowerCase().indexOf(search.toLowerCase()) > -1
+  }
 },
 ```
 
