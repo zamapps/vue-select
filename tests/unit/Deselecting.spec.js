@@ -1,4 +1,4 @@
-import { selectWithProps } from "../helpers";
+import { mountDefault, selectWithProps } from '../helpers';
 
 describe("Removing values", () => {
   it("can remove the given tag when its close icon is clicked", async () => {
@@ -46,6 +46,17 @@ describe("Removing values", () => {
 
     Select.vm.maybeDeleteValue();
     expect(Select.vm.selectedValue).toEqual([]);
+  });
+
+  it('will not emit input event if value has not changed with backspace', () => {
+    const Select = mountDefault();
+    Select.vm.$data._value = 'one';
+    Select.find({ ref: 'search' }).trigger('keydown.backspace');
+    expect(Select.emitted().input.length).toBe(1);
+
+    Select.find({ ref: 'search' }).trigger('keydown.backspace');
+    Select.find({ ref: 'search' }).trigger('keydown.backspace');
+    expect(Select.emitted().input.length).toBe(1);
   });
 
   describe("Clear button", () => {
