@@ -7,13 +7,13 @@ export default {
      */
     loading: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
 
-  data () {
+  data() {
     return {
-      mutableLoading: false,
+      mutableLoading: false
     };
   },
 
@@ -27,8 +27,8 @@ export default {
      *
      * @emits search
      */
-    search () {
-      this.$emit('search', this.search, this.toggleLoading);
+    search() {
+      this.$emit("search", this.search, this.toggleLoading);
     },
 
     /**
@@ -36,9 +36,9 @@ export default {
      * mutable loading value.
      * @param val
      */
-    loading (val) {
+    loading(val) {
       this.mutableLoading = val;
-    },
+    }
   },
 
   methods: {
@@ -49,11 +49,11 @@ export default {
      * @param toggle Boolean
      * @returns {*}
      */
-    toggleLoading (toggle = null) {
+    toggleLoading(toggle = null) {
       if (toggle == null) {
         return (this.mutableLoading = !this.mutableLoading);
       }
       return (this.mutableLoading = toggle);
-    },
-  },
+    }
+  }
 };

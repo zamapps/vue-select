@@ -1,9 +1,9 @@
-import { mountDefault, selectWithProps } from '../helpers';
+import { mountDefault, selectWithProps } from "../helpers";
 
 describe("Removing values", () => {
   it("can remove the given tag when its close icon is clicked", async () => {
     const Select = selectWithProps({ multiple: true });
-    Select.vm.$data._value = 'one';
+    Select.vm.$data._value = "one";
     await Select.vm.$nextTick();
 
     Select.find(".vs__deselect").trigger("click");
@@ -31,9 +31,9 @@ describe("Removing values", () => {
 
     Select.vm.$data._value = ["one", "two"];
 
-    Select.find('.vs__search').trigger('keydown.backspace')
+    Select.find(".vs__search").trigger("keydown.backspace");
 
-    expect(Select.emitted().input).toEqual([[['one']]]);
+    expect(Select.emitted().input).toEqual([[["one"]]]);
     expect(Select.vm.selectedValue).toEqual(["one"]);
   });
 
@@ -42,20 +42,20 @@ describe("Removing values", () => {
       options: ["one", "two", "three"]
     });
 
-    Select.vm.$data._value = 'one';
+    Select.vm.$data._value = "one";
 
     Select.vm.maybeDeleteValue();
     expect(Select.vm.selectedValue).toEqual([]);
   });
 
-  it('will not emit input event if value has not changed with backspace', () => {
+  it("will not emit input event if value has not changed with backspace", () => {
     const Select = mountDefault();
-    Select.vm.$data._value = 'one';
-    Select.find({ ref: 'search' }).trigger('keydown.backspace');
+    Select.vm.$data._value = "one";
+    Select.find({ ref: "search" }).trigger("keydown.backspace");
     expect(Select.emitted().input.length).toBe(1);
 
-    Select.find({ ref: 'search' }).trigger('keydown.backspace');
-    Select.find({ ref: 'search' }).trigger('keydown.backspace');
+    Select.find({ ref: "search" }).trigger("keydown.backspace");
+    Select.find({ ref: "search" }).trigger("keydown.backspace");
     expect(Select.emitted().input.length).toBe(1);
   });
 
@@ -81,9 +81,9 @@ describe("Removing values", () => {
 
     it("should remove selected value when clicked", () => {
       const Select = selectWithProps({
-        options: ["foo", "bar"],
+        options: ["foo", "bar"]
       });
-      Select.vm.$data._value = 'foo';
+      Select.vm.$data._value = "foo";
 
       expect(Select.vm.selectedValue).toEqual(["foo"]);
       Select.find("button.vs__clear").trigger("click");

@@ -6,11 +6,11 @@ describe("Filtering Options", () => {
     const Select = shallowMount(VueSelect, {
       propsData: { options: ["foo", "bar", "baz"] }
     });
-    
-    const input = Select.find('.vs__search');
-    input.element.value = 'a'
-    input.trigger('input')
-    expect(Select.vm.search).toEqual('a');
+
+    const input = Select.find(".vs__search");
+    input.element.value = "a";
+    input.trigger("input");
+    expect(Select.vm.search).toEqual("a");
   });
 
   it("should filter an array of strings", () => {

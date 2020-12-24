@@ -2,7 +2,7 @@ export default {
   data() {
     return {
       typeAheadPointer: -1
-    }
+    };
   },
 
   watch: {
@@ -37,7 +37,11 @@ export default {
      * @return {void}
      */
     typeAheadDown() {
-      for (let i = this.typeAheadPointer + 1; i < this.filteredOptions.length; i++) {
+      for (
+        let i = this.typeAheadPointer + 1;
+        i < this.filteredOptions.length;
+        i++
+      ) {
         if (this.selectable(this.filteredOptions[i])) {
           this.typeAheadPointer = i;
           break;
@@ -58,4 +62,4 @@ export default {
       }
     }
   }
-}
+};

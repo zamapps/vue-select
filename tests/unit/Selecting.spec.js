@@ -1,6 +1,6 @@
 import { mount, shallowMount } from "@vue/test-utils";
 import VueSelect from "../../src/components/Select.vue";
-import { mountDefault } from '../helpers';
+import { mountDefault } from "../helpers";
 
 describe("VS - Selecting Values", () => {
   let defaultProps;
@@ -81,7 +81,9 @@ describe("VS - Selecting Values", () => {
     ];
 
     Select.vm.deselect({ label: "This is Foo", value: "foo" });
-    expect(Select.vm.selectedValue).toEqual([{ label: "This is Bar", value: "bar" }]);
+    expect(Select.vm.selectedValue).toEqual([
+      { label: "This is Bar", value: "bar" }
+    ]);
   });
 
   it("can deselect a pre-selected string", () => {
@@ -193,15 +195,20 @@ describe("VS - Selecting Values", () => {
         value: [{ label: "foo", value: "bar" }]
       }
     });
-    expect(Select.vm.isOptionSelected({ label: "foo", value: "bar" })).toEqual(true);
+    expect(Select.vm.isOptionSelected({ label: "foo", value: "bar" })).toEqual(
+      true
+    );
   });
 
-  it('can select two options with the same label', () => {
-    const options = [{label: 'one', id: 1}, {label: 'one', id: 2}];
-    const Select = mountDefault({options, multiple: true});
+  it("can select two options with the same label", () => {
+    const options = [
+      { label: "one", id: 1 },
+      { label: "one", id: 2 }
+    ];
+    const Select = mountDefault({ options, multiple: true });
 
-    Select.vm.select({label: 'one', id: 1});
-    Select.vm.select({label: 'one', id: 2});
+    Select.vm.select({ label: "one", id: 1 });
+    Select.vm.select({ label: "one", id: 2 });
 
     expect(Select.vm.selectedValue).toEqual(options);
   });
@@ -223,7 +230,11 @@ describe("VS - Selecting Values", () => {
 
     it("will not trigger the input event when multiple is true and selection is repeated", () => {
       const Select = shallowMount(VueSelect, {
-        propsData: { multiple: true, value: ["foo ", "bar"], options: ["foo", "bar", "baz"] }
+        propsData: {
+          multiple: true,
+          value: ["foo ", "bar"],
+          options: ["foo", "bar", "baz"]
+        }
       });
 
       Select.vm.select("bar");
@@ -257,7 +268,11 @@ describe("VS - Selecting Values", () => {
 
     it("will trigger the option:selecting event regardless of current value when multiple is true", () => {
       const Select = shallowMount(VueSelect, {
-        propsData: { multiple: true, value: ["foo", "bar"], options: ["foo", "bar"] }
+        propsData: {
+          multiple: true,
+          value: ["foo", "bar"],
+          options: ["foo", "bar"]
+        }
       });
       Select.vm.select("bar");
       Select.vm.select("bar");
@@ -293,7 +308,11 @@ describe("VS - Selecting Values", () => {
 
     it("will trigger the option:selected event regardless of current value when multiple is true", () => {
       const Select = shallowMount(VueSelect, {
-        propsData: { multiple: true, value: ["foo", "bar"], options: ["foo", "bar"] }
+        propsData: {
+          multiple: true,
+          value: ["foo", "bar"],
+          options: ["foo", "bar"]
+        }
       });
       Select.vm.deselect("bar");
       Select.vm.deselect("bar");

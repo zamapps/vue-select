@@ -2,12 +2,11 @@ import {
   mountDefault,
   searchSubmit,
   selectTag,
-  selectWithProps,
-} from '../helpers';
-import Select from '../../src/components/Select';
+  selectWithProps
+} from "../helpers";
+import Select from "../../src/components/Select";
 
 describe("When Tagging Is Enabled", () => {
-
   it("can determine if a given option string already exists", () => {
     const Select = selectWithProps({ taggable: true, options: ["one", "two"] });
     expect(Select.vm.optionExists("one")).toEqual(true);
@@ -20,8 +19,8 @@ describe("When Tagging Is Enabled", () => {
       options: [{ label: "one" }, { label: "two" }]
     });
 
-    expect(Select.vm.optionExists({label: "one"})).toEqual(true);
-    expect(Select.vm.optionExists({label: "three"})).toEqual(false);
+    expect(Select.vm.optionExists({ label: "one" })).toEqual(true);
+    expect(Select.vm.optionExists({ label: "three" })).toEqual(false);
   });
 
   it("can determine if a given option object already exists when using custom labels", () => {
@@ -31,7 +30,7 @@ describe("When Tagging Is Enabled", () => {
       label: "foo"
     });
 
-    const createOption = (text) => Select.vm.createOption(text);
+    const createOption = text => Select.vm.createOption(text);
 
     expect(Select.vm.optionExists(createOption("one"))).toEqual(true);
     expect(Select.vm.optionExists(createOption("three"))).toEqual(false);
@@ -71,9 +70,7 @@ describe("When Tagging Is Enabled", () => {
 
     await selectTag(Select, "two");
 
-    expect(Select.vm.selectedValue).toEqual([
-      { label: "two" }
-    ]);
+    expect(Select.vm.selectedValue).toEqual([{ label: "two" }]);
   });
 
   it("should add a freshly created option/tag to the options list when pushTags is true", async () => {
@@ -236,11 +233,11 @@ describe("When Tagging Is Enabled", () => {
       multiple: true,
       options: [{ label: "two" }]
     });
-    const spy = jest.spyOn(Select.vm, 'select');
+    const spy = jest.spyOn(Select.vm, "select");
 
     await selectTag(Select, "one");
     expect(Select.vm.selectedValue).toEqual([{ label: "one" }]);
-    expect(spy).lastCalledWith({label: 'one'});
+    expect(spy).lastCalledWith({ label: "one" });
     expect(Select.vm.search).toEqual("");
 
     await selectTag(Select, "one");
@@ -258,6 +255,6 @@ describe("When Tagging Is Enabled", () => {
     Select.find({ ref: "search" }).trigger("keydown.tab");
 
     await Select.vm.$nextTick();
-    expect(Select.vm.selectedValue).toEqual(['one']);
-  })
+    expect(Select.vm.selectedValue).toEqual(["one"]);
+  });
 });

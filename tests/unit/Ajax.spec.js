@@ -1,6 +1,6 @@
 import { selectWithProps } from "../helpers";
-import { shallowMount } from '@vue/test-utils';
-import vSelect from '../../src/components/Select';
+import { shallowMount } from "@vue/test-utils";
+import vSelect from "../../src/components/Select";
 
 describe("Asynchronous Loading", () => {
   it("can toggle the loading class", () => {
@@ -43,19 +43,19 @@ describe("Asynchronous Loading", () => {
     const Select = shallowMount(vSelect, {
       listeners: {
         search: (search, loading) => {
-          loading(false)
-        },
-      },
+          loading(false);
+        }
+      }
     });
 
     Select.vm.mutableLoading = true;
-    Select.vm.search = 'foo';
+    Select.vm.search = "foo";
     await Select.vm.$nextTick();
 
     expect(Select.vm.mutableLoading).toEqual(false);
   });
 
-  it('will sync mutable loading with the loading prop', async () => {
+  it("will sync mutable loading with the loading prop", async () => {
     const Select = selectWithProps({ loading: false });
     Select.setProps({ loading: true });
     await Select.vm.$nextTick();

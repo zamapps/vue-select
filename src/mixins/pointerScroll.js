@@ -11,7 +11,7 @@ export default {
       if (this.autoscroll) {
         this.maybeAdjustScroll();
       }
-    },
+    }
   },
 
   methods: {

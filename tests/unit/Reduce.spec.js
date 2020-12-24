@@ -10,7 +10,9 @@ describe("When reduce prop is defined", () => {
         options: [{ label: "This is Foo", value: "foo" }]
       }
     });
-    expect(Select.vm.selectedValue).toEqual([{ label: "This is Foo", value: "foo" }]);
+    expect(Select.vm.selectedValue).toEqual([
+      { label: "This is Foo", value: "foo" }
+    ]);
   });
 
   it("can determine if an object is pre-selected", () => {
@@ -35,21 +37,23 @@ describe("When reduce prop is defined", () => {
     ).toEqual(true);
   });
 
-  it('can determine if an object is selected after its been chosen', () => {
-      const Select = shallowMount(VueSelect, {
-        propsData: {
-          reduce: option => option.id,
-          options: [{id: 'foo', label: 'FooBar'}],
-        },
-      });
-
-      Select.vm.select({id: 'foo', label: 'FooBar'});
-
-      expect(Select.vm.isOptionSelected({
-        id: 'foo',
-        label: 'This is FooBar',
-      })).toEqual(true);
+  it("can determine if an object is selected after its been chosen", () => {
+    const Select = shallowMount(VueSelect, {
+      propsData: {
+        reduce: option => option.id,
+        options: [{ id: "foo", label: "FooBar" }]
+      }
     });
+
+    Select.vm.select({ id: "foo", label: "FooBar" });
+
+    expect(
+      Select.vm.isOptionSelected({
+        id: "foo",
+        label: "This is FooBar"
+      })
+    ).toEqual(true);
+  });
 
   it("can accept an array of objects and pre-selected values (multiple)", () => {
     const Select = shallowMount(VueSelect, {
@@ -64,7 +68,9 @@ describe("When reduce prop is defined", () => {
       }
     });
 
-    expect(Select.vm.selectedValue).toEqual([{ label: "This is Foo", value: "foo" }]);
+    expect(Select.vm.selectedValue).toEqual([
+      { label: "This is Foo", value: "foo" }
+    ]);
   });
 
   it("can deselect a pre-selected object", () => {
@@ -79,7 +85,7 @@ describe("When reduce prop is defined", () => {
       }
     });
 
-    Select.vm.$data._value = ['foo', 'bar'];
+    Select.vm.$data._value = ["foo", "bar"];
 
     Select.vm.deselect("foo");
     expect(Select.vm.selectedValue).toEqual(["bar"]);
@@ -118,7 +124,7 @@ describe("When reduce prop is defined", () => {
             return this.current;
           },
           set(value) {
-            if (value == 'baz') return;
+            if (value == "baz") return;
             this.current = value;
           }
         }
@@ -134,18 +140,24 @@ describe("When reduce prop is defined", () => {
     const Select = Parent.vm.$children[0];
 
     expect(Select.value).toEqual("foo");
-    expect(Select.selectedValue).toEqual([{ label: "This is Foo", value: "foo" }]);
+    expect(Select.selectedValue).toEqual([
+      { label: "This is Foo", value: "foo" }
+    ]);
 
     Select.select({ label: "This is Bar", value: "bar" });
     await Select.$nextTick();
     expect(Parent.vm.value).toEqual("bar");
-    expect(Select.selectedValue).toEqual([{ label: "This is Bar", value: "bar" }]);
+    expect(Select.selectedValue).toEqual([
+      { label: "This is Bar", value: "bar" }
+    ]);
 
     // Parent denies to set baz
     Select.select({ label: "This is Baz", value: "baz" });
     await Select.$nextTick();
-    expect(Select.selectedValue).toEqual([{ label: "This is Bar", value: "bar" }]);
-    expect(Parent.vm.value).toEqual('bar');
+    expect(Select.selectedValue).toEqual([
+      { label: "This is Bar", value: "bar" }
+    ]);
+    expect(Parent.vm.value).toEqual("bar");
   });
 
   it("can generate labels using a custom label key", () => {
@@ -155,7 +167,10 @@ describe("When reduce prop is defined", () => {
         reduce: option => option.value,
         value: ["CA"],
         label: "name",
-        options: [{ value: "CA", name: "Canada" }, { value: "US", name: "United States" }]
+        options: [
+          { value: "CA", name: "Canada" },
+          { value: "US", name: "United States" }
+        ]
       }
     });
 
@@ -177,28 +192,28 @@ describe("When reduce prop is defined", () => {
     );
   });
 
-  it('can work with falsey values', () => {
-    const option = {value: 0, label: 'No'};
+  it("can work with falsey values", () => {
+    const option = { value: 0, label: "No" };
     const Select = shallowMount(VueSelect, {
       propsData: {
         reduce: option => option.value,
-        options: [option, {value: 1, label: 'Yes'}],
-        value: 0,
-      },
+        options: [option, { value: 1, label: "Yes" }],
+        value: 0
+      }
     });
 
     expect(Select.vm.findOptionFromReducedValue(option)).toEqual(option);
     expect(Select.vm.selectedValue).toEqual([option]);
   });
 
-  it('works with null values', () => {
-    const option = {value: null, label: 'No'};
+  it("works with null values", () => {
+    const option = { value: null, label: "No" };
     const Select = shallowMount(VueSelect, {
       propsData: {
         reduce: option => option.value,
-        options: [option, {value: 1, label: 'Yes'}],
-        value: null,
-      },
+        options: [option, { value: 1, label: "Yes" }],
+        value: null
+      }
     });
 
     expect(Select.vm.findOptionFromReducedValue(option)).toEqual(option);
@@ -233,7 +248,6 @@ describe("When reduce prop is defined", () => {
       Select.vm.select(nestedOption);
       expect(Select.vm.isOptionSelected(nestedOption)).toEqual(true);
     });
-
   });
 
   it("reacts correctly when value property changes", async () => {
@@ -252,10 +266,10 @@ describe("When reduce prop is defined", () => {
     expect(Select.vm.selectedValue).toEqual([optionToChangeTo]);
   });
 
-  describe('Reducing Tags', () => {
-    it('tracks values that have been created by the user', async () => {
+  describe("Reducing Tags", () => {
+    it("tracks values that have been created by the user", async () => {
       const Parent = mount({
-        data: () => ({selected: null, options: []}),
+        data: () => ({ selected: null, options: [] }),
         template: `
           <v-select
             v-model="selected"
@@ -265,7 +279,7 @@ describe("When reduce prop is defined", () => {
             :create-option="label => ({ label, value: -1 })"
           />
         `,
-        components: {'v-select': VueSelect},
+        components: { "v-select": VueSelect }
       });
       const Select = Parent.vm.$children[0];
 
@@ -273,15 +287,15 @@ describe("When reduce prop is defined", () => {
       Select.$refs.search.focus();
       await Select.$nextTick();
 
-      Select.search = 'hello';
+      Select.search = "hello";
       await Select.$nextTick();
 
       Select.typeAheadSelect();
       await Select.$nextTick();
 
       //  Then
-      expect(Select.selectedValue).toEqual([{label: 'hello', value: -1}]);
-      expect(Select.$refs.selectedOptions.textContent.trim()).toEqual('hello');
+      expect(Select.selectedValue).toEqual([{ label: "hello", value: -1 }]);
+      expect(Select.$refs.selectedOptions.textContent.trim()).toEqual("hello");
       expect(Parent.vm.selected).toEqual(-1);
     });
   });

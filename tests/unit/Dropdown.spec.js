@@ -1,10 +1,10 @@
 import { selectWithProps } from "../helpers";
 import OpenIndicator from "../../src/components/OpenIndicator";
 
-const preventDefault = jest.fn()
+const preventDefault = jest.fn();
 
-function clickEvent (currentTarget) {
-  return { currentTarget, preventDefault }
+function clickEvent(currentTarget) {
+  return { currentTarget, preventDefault };
 }
 
 describe("Toggling Dropdown", () => {
@@ -34,7 +34,7 @@ describe("Toggling Dropdown", () => {
     Select.vm.toggleDropdown(clickEvent(Select.vm.$refs.search));
     expect(Select.vm.open).toEqual(true);
     Select.vm.toggleDropdown(clickEvent(Select.vm.$el));
-    expect(Select.vm.open).toEqual(false)
+    expect(Select.vm.open).toEqual(false);
   });
 
   it("should open the dropdown when the selected tag is clicked", () => {
@@ -135,22 +135,22 @@ describe("Toggling Dropdown", () => {
     });
 
     Select.vm.search = "foo";
-    Select.find('.vs__search').trigger('keydown.esc')
+    Select.find(".vs__search").trigger("keydown.esc");
     expect(Select.vm.search).toEqual("");
   });
 
   it("should have an open class when dropdown is active", () => {
     const Select = selectWithProps();
 
-    expect(Select.vm.stateClasses['vs--open']).toEqual(false);
+    expect(Select.vm.stateClasses["vs--open"]).toEqual(false);
 
     Select.vm.open = true;
-    expect(Select.vm.stateClasses['vs--open']).toEqual(true);
+    expect(Select.vm.stateClasses["vs--open"]).toEqual(true);
   });
 
   it("should not display the dropdown if noDrop is true", async () => {
     const Select = selectWithProps({
-      noDrop: true,
+      noDrop: true
     });
 
     Select.vm.toggleDropdown(clickEvent(Select.vm.$refs.search));
@@ -158,34 +158,33 @@ describe("Toggling Dropdown", () => {
     expect(Select.vm.open).toEqual(true);
     await Select.vm.$nextTick();
 
-    expect(Select.contains('.vs__dropdown-menu')).toBeFalsy();
-    expect(Select.contains('.vs__dropdown-option')).toBeFalsy();
-    expect(Select.contains('.vs__no-options')).toBeFalsy();
-    expect(Select.vm.stateClasses['vs--open']).toBeFalsy();
+    expect(Select.contains(".vs__dropdown-menu")).toBeFalsy();
+    expect(Select.contains(".vs__dropdown-option")).toBeFalsy();
+    expect(Select.contains(".vs__no-options")).toBeFalsy();
+    expect(Select.vm.stateClasses["vs--open"]).toBeFalsy();
   });
 
   it("should hide the open indicator if noDrop is true", () => {
     const Select = selectWithProps({
-      noDrop: true,
+      noDrop: true
     });
     expect(Select.contains(OpenIndicator)).toBeFalsy();
   });
 
   it("should not add the searchable state class when noDrop is true", () => {
     const Select = selectWithProps({
-      noDrop: true,
+      noDrop: true
     });
-    expect(Select.classes('vs--searchable')).toBeFalsy();
+    expect(Select.classes("vs--searchable")).toBeFalsy();
   });
 
   it("should not add the searching state class when noDrop is true", () => {
     const Select = selectWithProps({
-      noDrop: true,
+      noDrop: true
     });
 
-    Select.vm.search = 'Canada';
+    Select.vm.search = "Canada";
 
-    expect(Select.classes('vs--searching')).toBeFalsy();
+    expect(Select.classes("vs--searching")).toBeFalsy();
   });
-
 });

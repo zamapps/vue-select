@@ -1,6 +1,6 @@
 import { shallowMount } from "@vue/test-utils";
 import VueSelect from "../src/components/Select.vue";
-import Vue from 'vue';
+import Vue from "vue";
 
 /**
  * Trigger a submit event on the search
@@ -13,7 +13,7 @@ export const searchSubmit = (Wrapper, searchText = false) => {
   if (searchText) {
     Wrapper.vm.search = searchText;
   }
-  Wrapper.find({ ref: "search" }).trigger("keydown.enter")
+  Wrapper.find({ ref: "search" }).trigger("keydown.enter");
 };
 
 /**
@@ -52,13 +52,12 @@ export const selectWithProps = (propsData = {}) => {
 export const mountDefault = (props = {}, options = {}) => {
   return shallowMount(VueSelect, {
     propsData: {
-      options: ['one', 'two', 'three'],
-      ...props,
+      options: ["one", "two", "three"],
+      ...props
     },
-    ...options,
+    ...options
   });
 };
-
 
 /**
  * Returns a v-select component directly.
@@ -68,11 +67,12 @@ export const mountDefault = (props = {}, options = {}) => {
  */
 export const mountWithoutTestUtils = (props = {}, options = {}) => {
   return new Vue({
-    render: createEl => createEl('vue-select', {
-      ref: 'select',
-      props: {options: ['one', 'two', 'three'], ...props},
-      ...options
-    }),
-    components: {VueSelect},
+    render: createEl =>
+      createEl("vue-select", {
+        ref: "select",
+        props: { options: ["one", "two", "three"], ...props },
+        ...options
+      }),
+    components: { VueSelect }
   }).$mount().$refs.select;
 };
