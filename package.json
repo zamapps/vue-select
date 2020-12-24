@@ -8,8 +8,8 @@
     "email": "sagalbot@gmail.com"
   },
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "serve": "vue-cli-service serve src/dev.js",
+    "build": "vue-cli-service build --target lib --name vue-select src/vue-select.js",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",
