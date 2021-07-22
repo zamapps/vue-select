@@ -521,6 +521,26 @@ selectOnTab: {
 }
 ```
 
+## shouldNoOptionsSlotDisplay <Badge text="v3.13.0+" />
+
+```js
+/**
+ * Determines whether the no options slot
+ * will be displayed.
+ *
+ * Receives the component instance as the only argument.
+ *
+ * @since v3.13.0
+ * @return boolean
+ */
+shouldNoOptionsSlotDisplay: {
+  type: Function,
+  default({ filteredOptions }) {
+    return filteredOptions.length === 0
+  }
+}
+```
+
 
 ## tabindex
 

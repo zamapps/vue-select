@@ -70,7 +70,7 @@
             {{ getOptionLabel(option) }}
           </slot>
         </li>
-        <li v-if="filteredOptions.length === 0" class="vs__no-options">
+        <li v-if="showNoOptionsSlot" class="vs__no-options">
           <slot name="no-options" v-bind="scope.noOptions">Sorry, no matching options.</slot>
         </li>
         <slot name="list-footer" v-bind="scope.listFooter" />
@@ -578,6 +578,22 @@
         type: Function,
         default({noDrop, open, mutableLoading}) {
           return noDrop ? false : open && !mutableLoading;
+        }
+      },
+
+      /**
+       * Determines whether the no options slot
+       * will be displayed.
+       *
+       * Receives the component instance as the only argument.
+       *
+       * @since v3.13.0
+       * @return boolean
+       */
+      noOptionsSlotShouldDisplay: {
+        type: Function,
+        default({filteredOptions}) {
+          return filteredOptions.length === 0
         }
       }
     },
@@ -1200,6 +1216,14 @@
       showClearButton() {
         return !this.multiple && this.clearable && !this.open && !this.isValueEmpty
       },
+
+      /**
+       * Determine if the no options slot should be displayed.
+       * @returns {Boolean}
+       */
+      showNoOptionsSlot() {
+        return !! this.noOptionsSlotShouldDisplay(this)
+      }
     },
 
   }

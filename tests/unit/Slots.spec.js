@@ -1,4 +1,4 @@
-import { mountDefault } from '../helpers';
+import { mountDefault, selectWithProps } from '../helpers';
 
 describe('Scoped Slots', () => {
   it('receives an option object to the selected-option-container slot', () => {
@@ -72,6 +72,20 @@ describe('Scoped Slots', () => {
       search: 'something not there',
       searching: true,
     })
+  });
+
+  test('no options slot can be hidden', async () => {
+    const Select = selectWithProps({
+      noOptionsSlotShouldDisplay: () => false,
+      options: []
+    });
+
+    Select.vm.open = true;
+    await Select.vm.$nextTick();
+
+    expect(Select.classes('vs--open')).toBeTruthy();
+    expect(Select.find('.vs__dropdown-menu li')).toBeTruthy();
+    expect(Select.find('.vs__no-options').exists()).toBeFalsy();
   });
 
   test('header slot props', async () => {
