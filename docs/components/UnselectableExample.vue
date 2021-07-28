@@ -7,7 +7,7 @@
   />
 </template>
 <script>
-import books from '../data/books';
+import books from '../data/books.js';
 export default {
   computed: {
     books: () => books,

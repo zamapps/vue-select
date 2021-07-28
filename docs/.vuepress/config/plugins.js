@@ -18,5 +18,5 @@ module.exports = [
   "@vuepress/plugin-active-header-links",
   "@vuepress/plugin-search",
   "@vuepress/plugin-nprogress",
-  require('../github/index')
+  require('../../github/index')
 ];

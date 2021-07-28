@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import countryCodes from '../data/countryCodes';
+import countryCodes from '../data/countryCodes.js';
 
 export default {
   name: 'CountrySelect',

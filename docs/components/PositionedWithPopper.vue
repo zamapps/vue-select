@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import countries from '../data/countries'
+import countries from '../data/countries.js'
 import { createPopper } from '@popperjs/core';
 
 export default {

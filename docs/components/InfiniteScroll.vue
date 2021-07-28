@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import countries from '../data/countries';
+import countries from '../data/countries.js';
 
 export default {
   name: "InfiniteScroll",

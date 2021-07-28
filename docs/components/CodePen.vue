@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import mountCodePen from '../utils/codePen';
+import mountCodePen from '../utils/codePen.js';
 
 export default {
   props: {

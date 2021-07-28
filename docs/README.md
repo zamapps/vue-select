@@ -22,8 +22,8 @@ developer experience, and customization.
 </div>
 
 Vue Select aims to be as lightweight as possible, while maintaining high standards for accessibility,
-developer experience, and customization. Huge thanks to the [sponsors](sponsors.md) and
-[contributors](contributors.md) that make Vue Select possible!
+developer experience, and customization. Huge thanks to the [sponsors](content/sponsors.md) and
+[contributors](content/contributors.md) that make Vue Select possible!
 
 ## Features
 

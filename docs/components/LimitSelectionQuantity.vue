@@ -9,7 +9,7 @@
   />
 </template>
 <script>
-import books from '../data/books';
+import books from '../data/books.js';
 export default {
   data() {
     return { selected: [] }
