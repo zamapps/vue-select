@@ -1,5 +1,9 @@
 <template>
-  <v-select :filter="fuseSearch" :options="books" :getOptionLabel="option => option.title">
+  <v-select
+    :filter="fuseSearch"
+    :options="books"
+    :getOptionLabel="(option) => option.title"
+  >
     <template #option="{ author, title }">
       {{ title }}
       <br />
@@ -10,22 +14,22 @@
 
 <script>
 import Fuse from "fuse.js";
-import books from "../data/books.js";
+import books from "../assets/data/books.js";
 
 export default {
   computed: {
-    books: () => books
+    books: () => books,
   },
   methods: {
     fuseSearch(options, search) {
       const fuse = new Fuse(options, {
         keys: ["title", "author.firstName", "author.lastName"],
-        shouldSort: true
+        shouldSort: true,
       });
       return search.length
         ? fuse.search(search).map(({ item }) => item)
         : fuse.list;
-    }
-  }
+    },
+  },
 };
 </script>

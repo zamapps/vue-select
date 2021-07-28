@@ -9,13 +9,13 @@
   />
 </template>
 <script>
-import books from '../data/books.js';
+import books from "../assets/data/books.js";
 export default {
   data() {
-    return { selected: [] }
+    return { selected: [] };
   },
   computed: {
     books: () => books,
-  }
-}
+  },
+};
 </script>

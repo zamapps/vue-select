@@ -4,7 +4,7 @@
     :filterable="false"
     @open="onOpen"
     @close="onClose"
-    @search="query => search = query"
+    @search="(query) => (search = query)"
   >
     <template #list-footer>
       <li ref="load" class="loader" v-show="hasNextPage">
@@ -15,16 +15,16 @@
 </template>
 
 <script>
-import countries from '../data/countries.js';
+import countries from "../assets/data/countries.js";
 
 export default {
   name: "InfiniteScroll",
   data: () => ({
     observer: null,
     limit: 10,
-    search: ''
+    search: "",
   }),
-  mounted () {
+  mounted() {
     /**
      * You could do this directly in data(), but since these docs
      * are server side rendered, IntersectionObserver doesn't exist
@@ -33,27 +33,27 @@ export default {
     this.observer = new IntersectionObserver(this.infiniteScroll);
   },
   computed: {
-    filtered () {
-      return countries.filter(country => country.includes(this.search));
+    filtered() {
+      return countries.filter((country) => country.includes(this.search));
     },
-    paginated () {
+    paginated() {
       return this.filtered.slice(0, this.limit);
     },
-    hasNextPage () {
+    hasNextPage() {
       return this.paginated.length < this.filtered.length;
     },
   },
   methods: {
-    async onOpen () {
+    async onOpen() {
       if (this.hasNextPage) {
         await this.$nextTick();
-        this.observer.observe(this.$refs.load)
+        this.observer.observe(this.$refs.load);
       }
     },
-    onClose () {
+    onClose() {
       this.observer.disconnect();
     },
-    async infiniteScroll ([{isIntersecting, target}]) {
+    async infiniteScroll([{ isIntersecting, target }]) {
       if (isIntersecting) {
         const ul = target.offsetParent;
         const scrollTop = target.offsetParent.scrollTop;
@@ -61,14 +61,14 @@ export default {
         await this.$nextTick();
         ul.scrollTop = scrollTop;
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-  .loader {
-    text-align: center;
-    color: #bbbbbb;
-  }
+.loader {
+  text-align: center;
+  color: #bbbbbb;
+}
 </style>

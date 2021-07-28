@@ -1,5 +1,9 @@
 <template>
-  <v-select :options="paginated" @search="query => search = query" :filterable="false">
+  <v-select
+    :options="paginated"
+    @search="(query) => (search = query)"
+    :filterable="false"
+  >
     <li slot="list-footer" class="pagination">
       <button @click="offset -= 10" :disabled="!hasPrevPage">Prev</button>
       <button @click="offset += 10" :disabled="!hasNextPage">Next</button>
@@ -8,42 +12,46 @@
 </template>
 
 <script>
-import countries from '../data/countries.js';
+import countries from "../assets/data/countries.js";
 export default {
   data: () => ({
     countries,
-    search: '',
+    search: "",
     offset: 0,
     limit: 10,
   }),
   computed: {
-    filtered () {
-      return this.countries.filter(country => country.includes(this.search));
+    filtered() {
+      return this.countries.filter((country) => country.includes(this.search));
     },
-    paginated () {
+    paginated() {
       return this.filtered.slice(this.offset, this.limit + this.offset);
     },
-    hasNextPage () {
+    hasNextPage() {
       const nextOffset = this.offset + 10;
-      return Boolean(this.filtered.slice(nextOffset, this.limit + nextOffset).length);
+      return Boolean(
+        this.filtered.slice(nextOffset, this.limit + nextOffset).length
+      );
     },
-    hasPrevPage () {
+    hasPrevPage() {
       const prevOffset = this.offset - 10;
-      return Boolean(this.filtered.slice(prevOffset, this.limit + prevOffset).length);
-    }
+      return Boolean(
+        this.filtered.slice(prevOffset, this.limit + prevOffset).length
+      );
+    },
   },
 };
 </script>
 
 <style scoped>
-  .pagination {
-    display: flex;
-    margin: .25rem .25rem 0;
-  }
-  .pagination button {
-    flex-grow: 1;
-  }
-  .pagination button:hover {
-    cursor: pointer;
-  }
+.pagination {
+  display: flex;
+  margin: 0.25rem 0.25rem 0;
+}
+.pagination button {
+  flex-grow: 1;
+}
+.pagination button:hover {
+  cursor: pointer;
+}
 </style>

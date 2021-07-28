@@ -1,28 +1,32 @@
 <template>
   <div>
-    <v-select :options="countries" append-to-body :calculate-position="withPopper" />
+    <v-select
+      :options="countries"
+      append-to-body
+      :calculate-position="withPopper"
+    />
 
-    <label for="position" style="display: block; margin: 1rem 0;">
+    <label for="position" style="display: block; margin: 1rem 0">
       <input
         type="checkbox"
         id="position"
         v-model="placement"
         true-value="top"
         false-value="bottom"
-      >
+      />
       Position dropdown above
     </label>
   </div>
 </template>
 
 <script>
-import countries from '../data/countries.js'
-import { createPopper } from '@popperjs/core';
+import countries from "../assets/data/countries.js";
+import { createPopper } from "@popperjs/core";
 
 export default {
-  data: () => ({countries, placement: 'top'}),
+  data: () => ({ countries, placement: "top" }),
   methods: {
-    withPopper (dropdownList, component, {width}) {
+    withPopper(dropdownList, component, { width }) {
       /**
        * We need to explicitly define the dropdown width since
        * it is usually inherited from the parent with CSS.
@@ -43,18 +47,23 @@ export default {
         placement: this.placement,
         modifiers: [
           {
-            name: 'offset', options: {
-              offset: [0, -1]
-            }
+            name: "offset",
+            options: {
+              offset: [0, -1],
+            },
           },
           {
-            name: 'toggleClass',
+            name: "toggleClass",
             enabled: true,
-            phase: 'write',
-            fn ({state}) {
-              component.$el.classList.toggle('drop-up', state.placement === 'top')
+            phase: "write",
+            fn({ state }) {
+              component.$el.classList.toggle(
+                "drop-up",
+                state.placement === "top"
+              );
             },
-          }]
+          },
+        ],
       });
 
       /**
@@ -62,22 +71,22 @@ export default {
        * If you return function, it will be called just before dropdown is removed from DOM.
        */
       return () => popper.destroy();
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style>
-  .v-select.drop-up.vs--open .vs__dropdown-toggle {
-    border-radius: 0 0 4px 4px;
-    border-top-color: transparent;
-    border-bottom-color: rgba(60, 60, 60, 0.26);
-  }
+.v-select.drop-up.vs--open .vs__dropdown-toggle {
+  border-radius: 0 0 4px 4px;
+  border-top-color: transparent;
+  border-bottom-color: rgba(60, 60, 60, 0.26);
+}
 
-  [data-popper-placement='top'] {
-    border-radius: 4px 4px 0 0;
-    border-top-style: solid;
-    border-bottom-style: none;
-    box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.15)
-  }
+[data-popper-placement="top"] {
+  border-radius: 4px 4px 0 0;
+  border-top-style: solid;
+  border-bottom-style: none;
+  box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.15);
+}
 </style>

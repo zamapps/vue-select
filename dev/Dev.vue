@@ -6,8 +6,8 @@
 
 <script>
 import vSelect from "../src/components/Select";
-import countries from "../docs/data/countryCodes";
-import books from "../docs/data/books";
+import countries from "../docs/assets/data/countryCodes";
+import books from "../docs/assets/data/books";
 
 export default {
   components: { vSelect },

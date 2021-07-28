@@ -3,16 +3,14 @@
 </template>
 
 <script>
-import countryCodes from '../data/countryCodes.js';
+import countryCodes from "../assets/data/countryCodes.js";
 
 export default {
-  name: 'CountrySelect',
+  name: "CountrySelect",
   data: () => ({
     options: countryCodes,
   }),
 };
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
