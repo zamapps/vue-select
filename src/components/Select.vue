@@ -81,10 +81,7 @@
 </template>
 
 <script type="text/babel">
-  import pointerScroll from '../mixins/pointerScroll'
-  import typeAheadPointer from '../mixins/typeAheadPointer'
-  import ajax from '../mixins/ajax'
-  import i18n from '../mixins/i18n'
+   import { ajax, pointerScroll, i18n, pointer as typeAheadPointer  } from '../mixins'
   import childComponents from './childComponents';
   import appendToBody from '../directives/appendToBody';
   import sortAndStringify from '../utility/sortAndStringify'
