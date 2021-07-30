@@ -19,8 +19,8 @@
     "build:docs": "cd docs && yarn build",
     "build:preview": "cd docs && yarn build",
     "test": "jest",
-    "lint": "npx eslint '**/*.{js,vue}'",
-    "prettier": "npx prettier '**/*.{js,vue}'",
+    "lint": "eslint '**/*.{js,vue}'",
+    "lint:fix": "eslint --fix '**/*.{js,vue}'",
     "semantic-release": "semantic-release",
     "commit": "git-cz"
   },
@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.4.0",
+    "@babel/eslint-parser": "^7.14.7",
     "@babel/plugin-transform-runtime": "^7.4.0",
     "@babel/preset-env": "^7.4.2",
     "@babel/runtime": "^7.4.2",
