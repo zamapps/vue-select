@@ -1,5 +1,6 @@
 import { mount, shallowMount } from "@vue/test-utils";
 import VueSelect from "../../src/components/Select.vue";
+import { mountDefault } from '../helpers';
 
 describe("VS - Selecting Values", () => {
   let defaultProps;
@@ -192,10 +193,20 @@ describe("VS - Selecting Values", () => {
         value: [{ label: "foo", value: "bar" }]
       }
     });
-    expect(Select.vm.isOptionSelected("foo")).toEqual(true);
+    expect(Select.vm.isOptionSelected({ label: "foo", value: "bar" })).toEqual(true);
   });
 
-  describe("change Event", () => {
+  it('can select two options with the same label', () => {
+    const options = [{label: 'one', id: 1}, {label: 'one', id: 2}];
+    const Select = mountDefault({options, multiple: true});
+
+    Select.vm.select({label: 'one', id: 1});
+    Select.vm.select({label: 'one', id: 2});
+
+    expect(Select.vm.selectedValue).toEqual(options);
+  });
+
+  describe("input Event", () => {
     it("will trigger the input event when the selection changes", () => {
       const Select = shallowMount(VueSelect);
       Select.vm.select("bar");
@@ -208,6 +219,85 @@ describe("VS - Selecting Values", () => {
       });
       Select.vm.select("bar");
       expect(Select.emitted("input")[0]).toEqual([["foo", "bar"]]);
+    });
+
+    it("will not trigger the input event when multiple is true and selection is repeated", () => {
+      const Select = shallowMount(VueSelect, {
+        propsData: { multiple: true, value: ["foo ", "bar"], options: ["foo", "bar", "baz"] }
+      });
+
+      Select.vm.select("bar");
+      expect(Select.emitted("input")).toBeFalsy();
+    });
+  });
+
+  describe("option:selecting Event", () => {
+    it("will trigger the option:selecting event when an option is selected", () => {
+      const Select = shallowMount(VueSelect);
+      Select.vm.select("bar");
+      expect(Select.emitted("option:selecting")[0]).toEqual(["bar"]);
+    });
+
+    it("will trigger the option:selecting event regardless of current value", () => {
+      const Select = shallowMount(VueSelect, {
+        propsData: { value: ["foo"], options: ["foo", "bar"] }
+      });
+      Select.vm.select("foo");
+      Select.vm.select("bar");
+      expect(Select.emitted("option:selecting")).toEqual([["foo"], ["bar"]]);
+    });
+
+    it("will trigger the option:selecting event with current selected item when multiple is true", () => {
+      const Select = shallowMount(VueSelect, {
+        propsData: { multiple: true, value: ["foo"], options: ["foo", "bar"] }
+      });
+      Select.vm.select("bar");
+      expect(Select.emitted("option:selecting")[0]).toEqual(["bar"]);
+    });
+
+    it("will trigger the option:selecting event regardless of current value when multiple is true", () => {
+      const Select = shallowMount(VueSelect, {
+        propsData: { multiple: true, value: ["foo", "bar"], options: ["foo", "bar"] }
+      });
+      Select.vm.select("bar");
+      Select.vm.select("bar");
+      expect(Select.emitted("option:selecting")).toEqual([["bar"], ["bar"]]);
+    });
+  });
+
+  describe("option:deselected Event", () => {
+    it("will trigger the option:deselected event when an option is deselected", () => {
+      const Select = shallowMount(VueSelect, {
+        propsData: { value: ["foo"], options: ["foo", "bar"] }
+      });
+      Select.vm.deselect("foo");
+      expect(Select.emitted("option:deselected")[0]).toEqual(["foo"]);
+    });
+
+    it("will trigger the option:deselected event regardless of current value", () => {
+      const Select = shallowMount(VueSelect, {
+        propsData: { value: ["foo"], options: ["foo", "bar"] }
+      });
+      Select.vm.deselect("foo");
+      Select.vm.deselect("bar");
+      expect(Select.emitted("option:deselected")).toEqual([["foo"], ["bar"]]);
+    });
+
+    it("will trigger the option:selected event with current selected item when multiple is true", () => {
+      const Select = shallowMount(VueSelect, {
+        propsData: { multiple: true, value: ["foo"], options: ["foo", "bar"] }
+      });
+      Select.vm.deselect("bar");
+      expect(Select.emitted("option:deselected")[0]).toEqual(["bar"]);
+    });
+
+    it("will trigger the option:selected event regardless of current value when multiple is true", () => {
+      const Select = shallowMount(VueSelect, {
+        propsData: { multiple: true, value: ["foo", "bar"], options: ["foo", "bar"] }
+      });
+      Select.vm.deselect("bar");
+      Select.vm.deselect("bar");
+      expect(Select.emitted("option:deselected")).toEqual([["bar"], ["bar"]]);
     });
   });
 });
