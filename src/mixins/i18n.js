@@ -1,21 +1,21 @@
 export const text = {
   spinner: {
-    text: 'Loading...'
+    text: 'Loading...',
   },
   noOptions: {
-    text: 'Sorry, no matching options.'
+    text: 'Sorry, no matching options.',
   },
   search: {
-    ariaLabel: 'Search for options'
+    ariaLabel: 'Search for options',
   },
   selectedOption: {},
   deselectButton: {
-    ariaLabel: label => 'Deselect Option'
+    ariaLabel: (label) => 'Deselect Option',
   },
   clearButton: {
-    ariaLabel: 'Clear Selection'
-  }
-};
+    ariaLabel: 'Clear Selection',
+  },
+}
 
 /**
  * @this VueSelect
@@ -29,12 +29,12 @@ export default {
        * @param text {Object}
        * @return {*}
        */
-      default: text => text,
+      default: (text) => text,
     },
   },
   computed: {
-    i18n () {
-      return this.text(text);
+    i18n() {
+      return this.text(text)
     },
   },
-};
+}
