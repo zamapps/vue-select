@@ -20,7 +20,7 @@
     "build:preview": "cd docs && yarn build",
     "test": "jest",
     "eslint": "eslint '{**/*,*}.{js,ts,jsx,tsx,vue}'",
-    "eslint:fix": "yarn run eslint --fix",
+    "eslint:fix": "npm run eslint -- --fix",
     "semantic-release": "semantic-release",
     "commit": "git-cz"
   },
