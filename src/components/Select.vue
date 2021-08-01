@@ -8,12 +8,12 @@
     <div
       :id="`vs${uid}__combobox`"
       ref="toggle"
-      @mousedown="toggleDropdown($event)"
       class="vs__dropdown-toggle"
       role="combobox"
       :aria-expanded="dropdownOpen.toString()"
       :aria-owns="`vs${uid}__listbox`"
-      :aria-label="i18n.search.ariaLabel"
+      aria-label="Search for option"
+      @mousedown="toggleDropdown($event)"
     >
       <div ref="selectedOptions" class="vs__selected-options">
         <slot
@@ -33,15 +33,13 @@
             </slot>
             <button
               v-if="multiple"
+              ref="deselectButtons"
               :disabled="disabled"
-              @click="deselect(option)"
               type="button"
               class="vs__deselect"
-              :title="i18n.deselectButton.ariaLabel(getOptionLabel(option))"
-              :aria-label="
-                i18n.deselectButton.ariaLabel(getOptionLabel(option))
-              "
-              ref="deselectButtons"
+              :title="`Deselect ${getOptionLabel(option)}`"
+              :aria-label="`Deselect ${getOptionLabel(option)}`"
+              @click="deselect(option)"
             >
               <component :is="childComponents.Deselect" />
             </button>
@@ -60,13 +58,13 @@
       <div ref="actions" class="vs__actions">
         <button
           v-show="showClearButton"
+          ref="clearButton"
           :disabled="disabled"
           type="button"
-          @click="clearSelection"
           class="vs__clear"
-          title="i18n.clearButton.ariaLabel"
-          aria-label="i18n.clearButton.ariaLabel"
-          ref="clearButton"
+          title="Clear Selected"
+          aria-label="Clear Selected"
+          @click="clearSelection"
         >
           <component :is="childComponents.Deselect" />
         </button>
@@ -80,31 +78,29 @@
         </slot>
 
         <slot name="spinner" v-bind="scope.spinner">
-          <div v-show="mutableLoading" class="vs__spinner">
-            {{ i18n.spinner.text }}
-          </div>
+          <div v-show="mutableLoading" class="vs__spinner">Loading...</div>
         </slot>
       </div>
     </div>
     <transition :name="transition">
       <ul
-        ref="dropdownMenu"
         v-if="dropdownOpen"
         :id="`vs${uid}__listbox`"
+        ref="dropdownMenu"
         :key="`vs${uid}__listbox`"
+        v-append-to-body
         class="vs__dropdown-menu"
         role="listbox"
+        tabindex="-1"
         @mousedown.prevent="onMousedown"
         @mouseup="onMouseUp"
-        tabindex="-1"
-        v-append-to-body
       >
         <slot name="list-header" v-bind="scope.listHeader" />
         <li
           v-for="(option, index) in filteredOptions"
-          role="option"
-          :key="getOptionKey(option)"
           :id="`vs${uid}__option-${index}`"
+          :key="getOptionKey(option)"
+          role="option"
           class="vs__dropdown-option"
           :class="{
             'vs__dropdown-option--selected': isOptionSelected(option),
@@ -120,9 +116,9 @@
           </slot>
         </li>
         <li v-if="filteredOptions.length === 0" class="vs__no-options">
-          <slot name="no-options" v-bind="scope.noOptions">{{
-            i18n.noOptions.text
-          }}</slot>
+          <slot name="no-options" v-bind="scope.noOptions"
+            >Sorry, no matching options.</slot
+          >
         </li>
         <slot name="list-footer" v-bind="scope.listFooter" />
       </ul>
@@ -137,13 +133,10 @@
   </div>
 </template>
 
-<script type="text/babel">
-import {
-  ajax,
-  pointerScroll,
-  i18n,
-  pointer as typeAheadPointer,
-} from '../mixins'
+<script>
+import pointerScroll from '../mixins/pointerScroll'
+import typeAheadPointer from '../mixins/typeAheadPointer'
+import ajax from '../mixins/ajax'
 import childComponents from './childComponents'
 import appendToBody from '../directives/appendToBody'
 import sortAndStringify from '../utility/sortAndStringify'
@@ -155,9 +148,9 @@ import uniqueId from '../utility/uniqueId'
 export default {
   components: { ...childComponents },
 
-    directives: {appendToBody},
+  directives: { appendToBody },
 
-    mixins: [pointerScroll, typeAheadPointer, ajax, i18n],
+  mixins: [pointerScroll, typeAheadPointer, ajax],
 
   props: {
     /**
@@ -166,6 +159,7 @@ export default {
      * using 'change' event using v-on
      * @type {Object||String||null}
      */
+    // eslint-disable-next-line vue/require-default-prop,vue/require-prop-types
     value: {},
 
     /**
@@ -529,6 +523,7 @@ export default {
      * @type {String}
      * @default {null}
      */
+    // eslint-disable-next-line vue/require-default-prop
     inputId: {
       type: String,
     },
@@ -582,6 +577,7 @@ export default {
      * for the search input. Can be used to implement
      * custom behaviour for key presses.
      */
+
     mapKeydown: {
       type: Function,
       /**
@@ -653,616 +649,655 @@ export default {
       open: false,
       isComposing: false,
       pushedTags: [],
+      // eslint-disable-next-line vue/no-reserved-keys
       _value: [], // Internal value managed by Vue Select if no `value` prop is passed
     }
   },
 
-    computed: {
-      /**
-       * Determine if the component needs to
-       * track the state of values internally.
-       * @return {boolean}
-       */
-      isTrackingValues () {
-        return typeof this.value === 'undefined' || this.$options.propsData.hasOwnProperty('reduce');
-      },
-
-      /**
-       * The options that are currently selected.
-       * @return {Array}
-       */
-      selectedValue () {
-        let value = this.value;
-        if (this.isTrackingValues) {
-          // Vue select has to manage value internally
-          value = this.$data._value;
-        }
-
-        if (value) {
-          return [].concat(value);
-        }
-
-        return [];
-      },
-
-      /**
-       * The options available to be chosen
-       * from the dropdown, including any
-       * tags that have been pushed.
-       *
-       * @return {Array}
-       */
-      optionList () {
-        return this.options.concat(this.pushTags ? this.pushedTags : []);
-      },
-
-      /**
-       * Find the search input DOM element.
-       * @returns {HTMLInputElement}
-       */
-      searchEl () {
-        return !!this.$scopedSlots['search']
-          ? this.$refs.selectedOptions.querySelector(this.searchInputQuerySelector)
-          : this.$refs.search;
-      },
-
-      /**
-       * The object to be bound to the $slots.search scoped slot.
-       * @returns {Object}
-       */
-      scope () {
-        const listSlot = {
-          search: this.search,
-          loading: this.loading,
-          searching: this.searching,
-          filteredOptions: this.filteredOptions
-        };
-        return {
-          search: {
-            attributes: {
-              'disabled': this.disabled,
-              'placeholder': this.searchPlaceholder,
-              'tabindex': this.tabindex,
-              'readonly': !this.searchable,
-              'id': this.inputId,
-              'aria-autocomplete': 'list',
-              'aria-labelledby': `vs${this.uid}__combobox`,
-              'aria-controls': `vs${this.uid}__listbox`,
-              'ref': 'search',
-              'type': 'search',
-              'autocomplete': this.autocomplete,
-              'value': this.search,
-              ...(this.dropdownOpen && this.filteredOptions[this.typeAheadPointer] ? {
-                'aria-activedescendant': `vs${this.uid}__option-${this.typeAheadPointer}`
-              } : {}),
-            },
-            events: {
-              'compositionstart': () => this.isComposing = true,
-              'compositionend': () => this.isComposing = false,
-              'keydown': this.onSearchKeyDown,
-              'blur': this.onSearchBlur,
-              'focus': this.onSearchFocus,
-              'input': (e) => this.search = e.target.value,
-            },
-          },
-          spinner: {
-            loading: this.mutableLoading
-          },
-          noOptions: {
-            search: this.search,
-            loading: this.mutableLoading,
-            searching: this.searching,
-          },
-          openIndicator: {
-            attributes: {
-              'ref': 'openIndicator',
-              'role': 'presentation',
-              'class': 'vs__open-indicator',
-            },
-          },
-          listHeader: listSlot,
-          listFooter: listSlot,
-          header: { ...listSlot, deselect: this.deselect },
-          footer: { ...listSlot, deselect: this.deselect }
-        };
-      },
-
-      /**
-       * Returns an object containing the child components
-       * that will be used throughout the component. The
-       * `component` prop can be used to overwrite the defaults.
-       *
-       * @return {Object}
-       */
-      childComponents () {
-        return {
-          ...childComponents,
-          ...this.components
-        };
-      },
-
-      /**
-       * Holds the current state of the component.
-       * @return {Object}
-       */
-      stateClasses() {
-        return {
-          'vs--open': this.dropdownOpen,
-          'vs--single': !this.multiple,
-          'vs--searching': this.searching && !this.noDrop,
-          'vs--searchable': this.searchable && !this.noDrop,
-          'vs--unsearchable': !this.searchable,
-          'vs--loading': this.mutableLoading,
-          'vs--disabled': this.disabled
-        }
-      },
-
-      /**
-       * Return the current state of the
-       * search input
-       * @return {Boolean} True if non empty value
-       */
-      searching() {
-        return !! this.search
-      },
-
-      /**
-       * Return the current state of the
-       * dropdown menu.
-       * @return {Boolean} True if open
-       */
-      dropdownOpen() {
-        return this.dropdownShouldOpen(this);
-      },
-
-      /**
-       * Return the placeholder string if it's set
-       * & there is no value selected.
-       * @return {String} Placeholder text
-       */
-      searchPlaceholder() {
-        if (this.isValueEmpty && this.placeholder) {
-          return this.placeholder;
-        }
-      },
-
-      /**
-       * The currently displayed options, filtered
-       * by the search elements value. If tagging
-       * true, the search text will be prepended
-       * if it doesn't already exist.
-       *
-       * @return {array}
-       */
-      filteredOptions() {
-        const optionList = [].concat(this.optionList);
-
-        if (!this.filterable && !this.taggable) {
-          return optionList;
-        }
-
-        let options = this.search.length ? this.filter(optionList, this.search, this) : optionList;
-        if (this.taggable && this.search.length) {
-          const createdOption = this.createOption(this.search);
-          if (!this.optionExists(createdOption)) {
-            options.unshift(createdOption);
-          }
-        }
-        return options;
-      },
-
-      /**
-       * Check if there aren't any options selected.
-       * @return {Boolean}
-       */
-      isValueEmpty() {
-        return this.selectedValue.length === 0;
-      },
-
-      /**
-       * Determines if the clear button should be displayed.
-       * @return {Boolean}
-       */
-      showClearButton() {
-        return !this.multiple && this.clearable && !this.open && !this.isValueEmpty
-      },
+  computed: {
+    /**
+     * Determine if the component needs to
+     * track the state of values internally.
+     * @return {boolean}
+     */
+    isTrackingValues() {
+      return (
+        typeof this.value === 'undefined' ||
+        this.$options.propsData.hasOwnProperty('reduce')
+      )
     },
 
-    watch: {
-      /**
-       * Maybe reset the value
-       * when options change.
-       * Make sure selected option
-       * is correct.
-       * @return {[type]} [description]
-       */
-      options (newOptions, oldOptions) {
-        let shouldReset = () => typeof this.resetOnOptionsChange === 'function'
-          ? this.resetOnOptionsChange(newOptions, oldOptions, this.selectedValue)
-          : this.resetOnOptionsChange;
+    /**
+     * The options that are currently selected.
+     * @return {Array}
+     */
+    selectedValue() {
+      let value = this.value
+      if (this.isTrackingValues) {
+        // Vue select has to manage value internally
+        value = this.$data._value
+      }
 
-        if (!this.taggable && shouldReset()) {
-          this.clearSelection();
-        }
+      if (value) {
+        return [].concat(value)
+      }
 
-        if (this.value && this.isTrackingValues) {
-          this.setInternalValueFromOptions(this.value);
-        }
-      },
+      return []
+    },
 
-      /**
-       * Make sure to update internal
-       * value if prop changes outside
-       */
-      value(val) {
-        if (this.isTrackingValues) {
-          this.setInternalValueFromOptions(val)
-        }
-      },
+    /**
+     * The options available to be chosen
+     * from the dropdown, including any
+     * tags that have been pushed.
+     *
+     * @return {Array}
+     */
+    optionList() {
+      return this.options.concat(this.pushTags ? this.pushedTags : [])
+    },
 
-      /**
-       * Always reset the value when
-       * the multiple prop changes.
-       * @param  {Boolean} isMultiple
-       * @return {void}
-       */
-      multiple() {
-        this.clearSelection()
-      },
+    /**
+     * Find the search input DOM element.
+     * @returns {HTMLInputElement}
+     */
+    searchEl() {
+      return !!this.$scopedSlots['search']
+        ? this.$refs.selectedOptions.querySelector(
+            this.searchInputQuerySelector
+          )
+        : this.$refs.search
+    },
 
-      open(isOpen) {
-        this.$emit(isOpen ? 'open' : 'close');
+    /**
+     * The object to be bound to the $slots.search scoped slot.
+     * @returns {Object}
+     */
+    scope() {
+      const listSlot = {
+        search: this.search,
+        loading: this.loading,
+        searching: this.searching,
+        filteredOptions: this.filteredOptions,
+      }
+      return {
+        search: {
+          attributes: {
+            disabled: this.disabled,
+            placeholder: this.searchPlaceholder,
+            tabindex: this.tabindex,
+            readonly: !this.searchable,
+            id: this.inputId,
+            'aria-autocomplete': 'list',
+            'aria-labelledby': `vs${this.uid}__combobox`,
+            'aria-controls': `vs${this.uid}__listbox`,
+            ref: 'search',
+            type: 'search',
+            autocomplete: this.autocomplete,
+            value: this.search,
+            ...(this.dropdownOpen && this.filteredOptions[this.typeAheadPointer]
+              ? {
+                  'aria-activedescendant': `vs${this.uid}__option-${this.typeAheadPointer}`,
+                }
+              : {}),
+          },
+          events: {
+            compositionstart: () => (this.isComposing = true),
+            compositionend: () => (this.isComposing = false),
+            keydown: this.onSearchKeyDown,
+            blur: this.onSearchBlur,
+            focus: this.onSearchFocus,
+            input: (e) => (this.search = e.target.value),
+          },
+        },
+        spinner: {
+          loading: this.mutableLoading,
+        },
+        noOptions: {
+          search: this.search,
+          loading: this.mutableLoading,
+          searching: this.searching,
+        },
+        openIndicator: {
+          attributes: {
+            ref: 'openIndicator',
+            role: 'presentation',
+            class: 'vs__open-indicator',
+          },
+        },
+        listHeader: listSlot,
+        listFooter: listSlot,
+        header: { ...listSlot, deselect: this.deselect },
+        footer: { ...listSlot, deselect: this.deselect },
       }
     },
 
-    created() {
-      this.mutableLoading = this.loading;
+    /**
+     * Returns an object containing the child components
+     * that will be used throughout the component. The
+     * `component` prop can be used to overwrite the defaults.
+     *
+     * @return {Object}
+     */
+    childComponents() {
+      return {
+        ...childComponents,
+        ...this.components,
+      }
+    },
 
-      if (typeof this.value !== "undefined" && this.isTrackingValues) {
+    /**
+     * Holds the current state of the component.
+     * @return {Object}
+     */
+    stateClasses() {
+      return {
+        'vs--open': this.dropdownOpen,
+        'vs--single': !this.multiple,
+        'vs--searching': this.searching && !this.noDrop,
+        'vs--searchable': this.searchable && !this.noDrop,
+        'vs--unsearchable': !this.searchable,
+        'vs--loading': this.mutableLoading,
+        'vs--disabled': this.disabled,
+      }
+    },
+
+    /**
+     * Return the current state of the
+     * search input
+     * @return {Boolean} True if non empty value
+     */
+    searching() {
+      return !!this.search
+    },
+
+    /**
+     * Return the current state of the
+     * dropdown menu.
+     * @return {Boolean} True if open
+     */
+    dropdownOpen() {
+      return this.dropdownShouldOpen(this)
+    },
+
+    /**
+     * Return the placeholder string if it's set
+     * & there is no value selected.
+     * @return {String} Placeholder text
+     */
+    searchPlaceholder() {
+      return this.isValueEmpty && this.placeholder
+        ? this.placeholder
+        : undefined
+    },
+
+    /**
+     * The currently displayed options, filtered
+     * by the search elements value. If tagging
+     * true, the search text will be prepended
+     * if it doesn't already exist.
+     *
+     * @return {array}
+     */
+    filteredOptions() {
+      const optionList = [].concat(this.optionList)
+
+      if (!this.filterable && !this.taggable) {
+        return optionList
+      }
+
+      let options = this.search.length
+        ? this.filter(optionList, this.search, this)
+        : optionList
+      if (this.taggable && this.search.length) {
+        const createdOption = this.createOption(this.search)
+        if (!this.optionExists(createdOption)) {
+          options.unshift(createdOption)
+        }
+      }
+      return options
+    },
+
+    /**
+     * Check if there aren't any options selected.
+     * @return {Boolean}
+     */
+    isValueEmpty() {
+      return this.selectedValue.length === 0
+    },
+
+    /**
+     * Determines if the clear button should be displayed.
+     * @return {Boolean}
+     */
+    showClearButton() {
+      return (
+        !this.multiple && this.clearable && !this.open && !this.isValueEmpty
+      )
+    },
+  },
+
+  watch: {
+    /**
+     * Maybe reset the value
+     * when options change.
+     * Make sure selected option
+     * is correct.
+     * @return {[type]} [description]
+     */
+    options(newOptions, oldOptions) {
+      let shouldReset = () =>
+        typeof this.resetOnOptionsChange === 'function'
+          ? this.resetOnOptionsChange(
+              newOptions,
+              oldOptions,
+              this.selectedValue
+            )
+          : this.resetOnOptionsChange
+
+      if (!this.taggable && shouldReset()) {
+        this.clearSelection()
+      }
+
+      if (this.value && this.isTrackingValues) {
         this.setInternalValueFromOptions(this.value)
       }
-
-      this.$on('option:created', this.pushTag)
     },
 
-    methods: {
-      /**
-       * Make sure tracked value is
-       * one option if possible.
-       * @param  {Object|String} value
-       * @return {void}
-       */
-      setInternalValueFromOptions(value) {
+    /**
+     * Make sure to update internal
+     * value if prop changes outside
+     */
+    value(val) {
+      if (this.isTrackingValues) {
+        this.setInternalValueFromOptions(val)
+      }
+    },
+
+    /**
+     * Always reset the value when
+     * the multiple prop changes.
+     * @return {void}
+     */
+    multiple() {
+      this.clearSelection()
+    },
+
+    open(isOpen) {
+      this.$emit(isOpen ? 'open' : 'close')
+    },
+  },
+
+  created() {
+    this.mutableLoading = this.loading
+
+    if (typeof this.value !== 'undefined' && this.isTrackingValues) {
+      this.setInternalValueFromOptions(this.value)
+    }
+
+    this.$on('option:created', this.pushTag)
+  },
+
+  methods: {
+    /**
+     * Make sure tracked value is
+     * one option if possible.
+     * @param  {Object|String} value
+     * @return {void}
+     */
+    setInternalValueFromOptions(value) {
+      if (Array.isArray(value)) {
+        this.$data._value = value.map((val) =>
+          this.findOptionFromReducedValue(val)
+        )
+      } else {
+        this.$data._value = this.findOptionFromReducedValue(value)
+      }
+    },
+
+    /**
+     * Select a given option.
+     * @param  {Object|String} option
+     * @return {void}
+     */
+    select(option) {
+      this.$emit('option:selecting', option)
+      if (!this.isOptionSelected(option)) {
+        if (this.taggable && !this.optionExists(option)) {
+          this.$emit('option:created', option)
+        }
+        if (this.multiple) {
+          option = this.selectedValue.concat(option)
+        }
+        this.updateValue(option)
+        this.$emit('option:selected', option)
+      }
+      this.onAfterSelect(option)
+    },
+
+    /**
+     * De-select a given option.
+     * @param  {Object|String} option
+     * @return {void}
+     */
+    deselect(option) {
+      this.$emit('option:deselecting', option)
+      this.updateValue(
+        this.selectedValue.filter((val) => {
+          return !this.optionComparator(val, option)
+        })
+      )
+      this.$emit('option:deselected', option)
+    },
+
+    /**
+     * Clears the currently selected value(s)
+     * @return {void}
+     */
+    clearSelection() {
+      this.updateValue(this.multiple ? [] : null)
+    },
+
+    /**
+     * Called from this.select after each selection.
+     * @param  {Object|String} option
+     * @return {void}
+     */
+    onAfterSelect(option) {
+      if (this.closeOnSelect) {
+        this.open = !this.open
+        this.searchEl.blur()
+      }
+
+      if (this.clearSearchOnSelect) {
+        this.search = ''
+      }
+    },
+
+    /**
+     * Accepts a selected value, updates local
+     * state when required, and triggers the
+     * input event.
+     *
+     * @emits input
+     * @param value
+     */
+    updateValue(value) {
+      if (typeof this.value === 'undefined') {
+        // Vue select has to manage value
+        this.$data._value = value
+      }
+
+      if (value !== null) {
         if (Array.isArray(value)) {
-          this.$data._value = value.map(val => this.findOptionFromReducedValue(val));
+          value = value.map((val) => this.reduce(val))
         } else {
-          this.$data._value = this.findOptionFromReducedValue(value);
+          value = this.reduce(value)
         }
-      },
+      }
 
-      /**
-       * Select a given option.
-       * @param  {Object|String} option
-       * @return {void}
-       */
-      select(option) {
-        this.$emit('option:selecting', option);
-        if (!this.isOptionSelected(option)) {
-          if (this.taggable && !this.optionExists(option)) {
-            this.$emit('option:created', option);
-          }
-          if (this.multiple) {
-            option = this.selectedValue.concat(option)
-          }
-          this.updateValue(option);
-          this.$emit('option:selected', option);
-        }
-        this.onAfterSelect(option)
-      },
+      this.$emit('input', value)
+    },
 
-      /**
-       * De-select a given option.
-       * @param  {Object|String} option
-       * @return {void}
-       */
-      deselect (option) {
-        this.$emit('option:deselecting', option);
-        this.updateValue(this.selectedValue.filter(val => {
-          return !this.optionComparator(val, option);
-        }));
-        this.$emit('option:deselected', option);
-      },
+    /**
+     * Toggle the visibility of the dropdown menu.
+     * @param  {Event} event
+     * @return {void}
+     */
+    toggleDropdown(event) {
+      const targetIsNotSearch = event.target !== this.searchEl
+      if (targetIsNotSearch) {
+        event.preventDefault()
+      }
 
-      /**
-       * Clears the currently selected value(s)
-       * @return {void}
-       */
-      clearSelection() {
-        this.updateValue(this.multiple ? [] : null)
-      },
+      //  don't react to click on deselect/clear buttons,
+      //  they dropdown state will be set in their click handlers
+      const ignoredButtons = [
+        ...(this.$refs['deselectButtons'] || []),
+        ...([this.$refs['clearButton']] || []),
+      ]
 
-      /**
-       * Called from this.select after each selection.
-       * @param  {Object|String} option
-       * @return {void}
-       */
-      onAfterSelect(option) {
-        if (this.closeOnSelect) {
-          this.open = !this.open;
-          this.searchEl.blur()
-        }
+      if (
+        this.searchEl === undefined ||
+        ignoredButtons
+          .filter(Boolean)
+          .some((ref) => ref.contains(event.target) || ref === event.target)
+      ) {
+        event.preventDefault()
+        return
+      }
 
-        if (this.clearSearchOnSelect) {
-          this.search = ''
-        }
-      },
-
-      /**
-       * Accepts a selected value, updates local
-       * state when required, and triggers the
-       * input event.
-       *
-       * @emits input
-       * @param value
-       */
-      updateValue (value) {
-        if (typeof this.value === 'undefined') {
-          // Vue select has to manage value
-          this.$data._value = value;
-        }
-
-        if (value !== null) {
-          if (Array.isArray(value)) {
-            value = value.map(val => this.reduce(val));
-          } else {
-            value = this.reduce(value);
-          }
-        }
-
-        this.$emit('input', value);
-      },
-
-      /**
-       * Toggle the visibility of the dropdown menu.
-       * @param  {Event} event
-       * @return {void}
-       */
-      toggleDropdown (event) {
-        const targetIsNotSearch = event.target !== this.searchEl;
-        if (targetIsNotSearch) {
-          event.preventDefault();
-        }
-
-        //  don't react to click on deselect/clear buttons,
-        //  they dropdown state will be set in their click handlers
-        const ignoredButtons = [
-          ...(this.$refs['deselectButtons'] || []),
-          ...([this.$refs['clearButton']] || []),
-        ];
-
-        if (this.searchEl === undefined || ignoredButtons.filter(Boolean).some(ref => ref.contains(event.target) || ref === event.target)) {
-          event.preventDefault();
-          return;
-        }
-
-        if (this.open && targetIsNotSearch) {
-          this.searchEl.blur();
-        } else if (!this.disabled) {
-          this.open = true;
-          this.searchEl.focus();
-        }
-      },
-
-      /**
-       * Check if the given option is currently selected.
-       * @param  {Object|String}  option
-       * @return {Boolean}        True when selected | False otherwise
-       */
-      isOptionSelected(option) {
-        return this.selectedValue.some(value => this.optionComparator(value, option))
-      },
-
-      /**
-       * Determine if two option objects are matching.
-       *
-       * @param a {Object}
-       * @param b {Object}
-       * @returns {boolean}
-       */
-      optionComparator(a, b) {
-        return this.getOptionKey(a) === this.getOptionKey(b);
-      },
-
-      /**
-       * Finds an option from the options
-       * where a reduced value matches
-       * the passed in value.
-       *
-       * @param value {Object}
-       * @returns {*}
-       */
-      findOptionFromReducedValue (value) {
-        const predicate = option => JSON.stringify(this.reduce(option)) === JSON.stringify(value);
-
-        const matches = [
-          ...this.options,
-          ...this.pushedTags,
-        ].filter(predicate);
-
-        if (matches.length === 1) {
-          return matches[0];
-        }
-
-        /**
-         * This second loop is needed to cover an edge case where `taggable` + `reduce`
-         * were used in conjunction with a `create-option` that doesn't create a
-         * unique reduced value.
-         * @see https://github.com/sagalbot/vue-select/issues/1089#issuecomment-597238735
-         */
-        return matches.find(match => this.optionComparator(match, this.$data._value)) || value;
-      },
-
-      /**
-       * 'Private' function to close the search options
-       * @emits  {search:blur}
-       * @returns {void}
-       */
-      closeSearchOptions(){
-        this.open = false
-        this.$emit('search:blur')
-      },
-
-      /**
-       * Delete the value on Delete keypress when there is no
-       * text in the search input, & there's tags to delete
-       * @return {this.value}
-       */
-      maybeDeleteValue() {
-        if (!this.searchEl.value.length && this.selectedValue && this.selectedValue.length && this.clearable) {
-          let value = null;
-          if (this.multiple) {
-            value = [...this.selectedValue.slice(0, this.selectedValue.length - 1)]
-          }
-          this.updateValue(value)
-        }
-      },
-
-      /**
-       * Determine if an option exists
-       * within this.optionList array.
-       *
-       * @param  {Object || String} option
-       * @return {boolean}
-       */
-      optionExists(option) {
-        return this.optionList.some(_option => this.optionComparator(_option, option))
-      },
-
-      /**
-       * Ensures that options are always
-       * passed as objects to scoped slots.
-       * @param option
-       * @return {*}
-       */
-      normalizeOptionForSlot (option) {
-        return (typeof option === 'object') ? option : {[this.label]: option};
-      },
-
-      /**
-       * If push-tags is true, push the
-       * given option to `this.pushedTags`.
-       *
-       * @param  {Object || String} option
-       * @return {void}
-       */
-      pushTag (option) {
-        this.pushedTags.push(option);
-      },
-
-      /**
-       * If there is any text in the search input, remove it.
-       * Otherwise, blur the search input to close the dropdown.
-       * @return {void}
-       */
-      onEscape() {
-        if (!this.search.length) {
-          this.searchEl.blur()
-        } else {
-          this.search = ''
-        }
-      },
-
-      /**
-       * Close the dropdown on blur.
-       * @emits  {search:blur}
-       * @return {void}
-       */
-      onSearchBlur() {
-        if (this.mousedown && !this.searching) {
-          this.mousedown = false
-        } else {
-          const { clearSearchOnSelect, multiple } = this;
-          if (this.clearSearchOnBlur({ clearSearchOnSelect, multiple })) {
-            this.search = ''
-          }
-          this.closeSearchOptions()
-          return
-        }
-        // Fixed bug where no-options message could not be closed
-        if (this.search.length === 0 && this.options.length === 0){
-          this.closeSearchOptions()
-          return
-        }
-      },
-
-      /**
-       * Open the dropdown on focus.
-       * @emits  {search:focus}
-       * @return {void}
-       */
-      onSearchFocus() {
+      if (this.open && targetIsNotSearch) {
+        this.searchEl.blur()
+      } else if (!this.disabled) {
         this.open = true
-        this.$emit('search:focus')
-      },
+        this.searchEl.focus()
+      }
+    },
+
+    /**
+     * Check if the given option is currently selected.
+     * @param  {Object|String}  option
+     * @return {Boolean}        True when selected | False otherwise
+     */
+    isOptionSelected(option) {
+      return this.selectedValue.some((value) =>
+        this.optionComparator(value, option)
+      )
+    },
+
+    /**
+     * Determine if two option objects are matching.
+     *
+     * @param a {Object}
+     * @param b {Object}
+     * @returns {boolean}
+     */
+    optionComparator(a, b) {
+      return this.getOptionKey(a) === this.getOptionKey(b)
+    },
+
+    /**
+     * Finds an option from the options
+     * where a reduced value matches
+     * the passed in value.
+     *
+     * @param value {Object}
+     * @returns {*}
+     */
+    findOptionFromReducedValue(value) {
+      const predicate = (option) =>
+        JSON.stringify(this.reduce(option)) === JSON.stringify(value)
+
+      const matches = [...this.options, ...this.pushedTags].filter(predicate)
+
+      if (matches.length === 1) {
+        return matches[0]
+      }
 
       /**
-       * Event-Handler to help workaround IE11 (probably fixes 10 as well)
-       * firing a `blur` event when clicking
-       * the dropdown's scrollbar, causing it
-       * to collapse abruptly.
-       * @see https://github.com/sagalbot/vue-select/issues/106
-       * @return {void}
+       * This second loop is needed to cover an edge case where `taggable` + `reduce`
+       * were used in conjunction with a `create-option` that doesn't create a
+       * unique reduced value.
+       * @see https://github.com/sagalbot/vue-select/issues/1089#issuecomment-597238735
        */
-      onMousedown() {
-        this.mousedown = true
-      },
+      return (
+        matches.find((match) =>
+          this.optionComparator(match, this.$data._value)
+        ) || value
+      )
+    },
 
-      /**
-       * Event-Handler to help workaround IE11 (probably fixes 10 as well)
-       * @see https://github.com/sagalbot/vue-select/issues/106
-       * @return {void}
-       */
-      onMouseUp() {
-        this.mousedown = false
-      },
+    /**
+     * 'Private' function to close the search options
+     * @emits  {search:blur}
+     * @returns {void}
+     */
+    closeSearchOptions() {
+      this.open = false
+      this.$emit('search:blur')
+    },
 
-      /**
-       * Search <input> KeyBoardEvent handler.
-       * @param e {KeyboardEvent}
-       * @return {Function}
-       */
-      onSearchKeyDown (e) {
-        const preventAndSelect = e => {
-          e.preventDefault();
-          return !this.isComposing && this.typeAheadSelect();
-        };
-
-        const defaults = {
-          //  backspace
-          8: e => this.maybeDeleteValue(),
-          //  tab
-          9: e => this.onTab(),
-          //  esc
-          27: e => this.onEscape(),
-          //  up.prevent
-          38: e => {
-            e.preventDefault();
-            return this.typeAheadUp();
-          },
-          //  down.prevent
-          40: e => {
-            e.preventDefault();
-            return this.typeAheadDown();
-          },
-        };
-
-        this.selectOnKeyCodes.forEach(keyCode => defaults[keyCode] = preventAndSelect);
-
-        const handlers = this.mapKeydown(defaults, this);
-
-        if (typeof handlers[e.keyCode] === 'function') {
-          return handlers[e.keyCode](e);
+    /**
+     * Delete the value on Delete keypress when there is no
+     * text in the search input, & there's tags to delete
+     * @return {this.value}
+     */
+    maybeDeleteValue() {
+      if (
+        !this.searchEl.value.length &&
+        this.selectedValue &&
+        this.selectedValue.length &&
+        this.clearable
+      ) {
+        let value = null
+        if (this.multiple) {
+          value = [
+            ...this.selectedValue.slice(0, this.selectedValue.length - 1),
+          ]
         }
+        this.updateValue(value)
+      }
+    },
+
+    /**
+     * Determine if an option exists
+     * within this.optionList array.
+     *
+     * @param  {Object || String} option
+     * @return {boolean}
+     */
+    optionExists(option) {
+      return this.optionList.some((_option) =>
+        this.optionComparator(_option, option)
+      )
+    },
+
+    /**
+     * Ensures that options are always
+     * passed as objects to scoped slots.
+     * @param option
+     * @return {*}
+     */
+    normalizeOptionForSlot(option) {
+      return typeof option === 'object' ? option : { [this.label]: option }
+    },
+
+    /**
+     * If push-tags is true, push the
+     * given option to `this.pushedTags`.
+     *
+     * @param  {Object || String} option
+     * @return {void}
+     */
+    pushTag(option) {
+      this.pushedTags.push(option)
+    },
+
+    /**
+     * If there is any text in the search input, remove it.
+     * Otherwise, blur the search input to close the dropdown.
+     * @return {void}
+     */
+    onEscape() {
+      if (!this.search.length) {
+        this.searchEl.blur()
+      } else {
+        this.search = ''
+      }
+    },
+
+    /**
+     * Close the dropdown on blur.
+     * @emits  {search:blur}
+     * @return {void}
+     */
+    onSearchBlur() {
+      if (this.mousedown && !this.searching) {
+        this.mousedown = false
+      } else {
+        const { clearSearchOnSelect, multiple } = this
+        if (this.clearSearchOnBlur({ clearSearchOnSelect, multiple })) {
+          this.search = ''
+        }
+        this.closeSearchOptions()
+        return
+      }
+      // Fixed bug where no-options message could not be closed
+      if (this.search.length === 0 && this.options.length === 0) {
+        this.closeSearchOptions()
+        return
+      }
+    },
+
+    /**
+     * Open the dropdown on focus.
+     * @emits  {search:focus}
+     * @return {void}
+     */
+    onSearchFocus() {
+      this.open = true
+      this.$emit('search:focus')
+    },
+
+    /**
+     * Event-Handler to help workaround IE11 (probably fixes 10 as well)
+     * firing a `blur` event when clicking
+     * the dropdown's scrollbar, causing it
+     * to collapse abruptly.
+     * @see https://github.com/sagalbot/vue-select/issues/106
+     * @return {void}
+     */
+    onMousedown() {
+      this.mousedown = true
+    },
+
+    /**
+     * Event-Handler to help workaround IE11 (probably fixes 10 as well)
+     * @see https://github.com/sagalbot/vue-select/issues/106
+     * @return {void}
+     */
+    onMouseUp() {
+      this.mousedown = false
+    },
+
+    /**
+     * Search <input> KeyBoardEvent handler.
+     * @param e {KeyboardEvent}
+     * @return {Function}
+     */
+    onSearchKeyDown(e) {
+      const preventAndSelect = (e) => {
+        e.preventDefault()
+        return !this.isComposing && this.typeAheadSelect()
+      }
+
+      const defaults = {
+        //  backspace
+        8: (e) => this.maybeDeleteValue(),
+        //  tab
+        9: (e) => this.onTab(),
+        //  esc
+        27: (e) => this.onEscape(),
+        //  up.prevent
+        38: (e) => {
+          e.preventDefault()
+          return this.typeAheadUp()
+        },
+        //  down.prevent
+        40: (e) => {
+          e.preventDefault()
+          return this.typeAheadDown()
+        },
+      }
+
+      this.selectOnKeyCodes.forEach(
+        (keyCode) => (defaults[keyCode] = preventAndSelect)
+      )
+
+      const handlers = this.mapKeydown(defaults, this)
+
+      if (typeof handlers[e.keyCode] === 'function') {
+        return handlers[e.keyCode](e)
       }
     },
   },
