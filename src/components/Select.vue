@@ -12,7 +12,7 @@
       role="combobox"
       :aria-expanded="dropdownOpen.toString()"
       :aria-owns="`vs${uid}__listbox`"
-      aria-label="Search for option"
+      :aria-label="i18n.search.ariaLabel"
       @mousedown="toggleDropdown($event)"
     >
       <div ref="selectedOptions" class="vs__selected-options">
@@ -37,8 +37,10 @@
               :disabled="disabled"
               type="button"
               class="vs__deselect"
-              :title="`Deselect ${getOptionLabel(option)}`"
-              :aria-label="`Deselect ${getOptionLabel(option)}`"
+              :title="i18n.deselectButton.title(getOptionLabel(option))"
+              :aria-label="
+                i18n.deselectButton.ariaLabel(getOptionLabel(option))
+              "
               @click="deselect(option)"
             >
               <component :is="childComponents.Deselect" />
@@ -78,7 +80,9 @@
         </slot>
 
         <slot name="spinner" v-bind="scope.spinner">
-          <div v-show="mutableLoading" class="vs__spinner">Loading...</div>
+          <div v-show="mutableLoading" class="vs__spinner">
+            {{ i18n.spinner.text }}
+          </div>
         </slot>
       </div>
     </div>
@@ -116,9 +120,9 @@
           </slot>
         </li>
         <li v-if="filteredOptions.length === 0" class="vs__no-options">
-          <slot name="no-options" v-bind="scope.noOptions"
-            >Sorry, no matching options.</slot
-          >
+          <slot name="no-options" v-bind="scope.noOptions">
+            {{ i18n.noOptions.text }}
+          </slot>
         </li>
         <slot name="list-footer" v-bind="scope.listFooter" />
       </ul>
@@ -134,9 +138,10 @@
 </template>
 
 <script>
-import pointerScroll from '../mixins/pointerScroll'
-import typeAheadPointer from '../mixins/typeAheadPointer'
-import ajax from '../mixins/ajax'
+import ajax from '../mixins/ajax.js'
+import i18n from '../mixins/i18n.js'
+import pointerScroll from '../mixins/pointerScroll.js'
+import typeAheadPointer from '../mixins/typeAheadPointer.js'
 import childComponents from './childComponents'
 import appendToBody from '../directives/appendToBody'
 import sortAndStringify from '../utility/sortAndStringify'
@@ -150,7 +155,7 @@ export default {
 
   directives: { appendToBody },
 
-  mixins: [pointerScroll, typeAheadPointer, ajax],
+  mixins: [pointerScroll, typeAheadPointer, ajax, i18n],
 
   props: {
     /**

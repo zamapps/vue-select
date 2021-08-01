@@ -1,3 +1,5 @@
+const deselectLabel = (label) => `Deselect ${label}`
+
 export const text = {
   spinner: {
     text: 'Loading...',
@@ -10,10 +12,12 @@ export const text = {
   },
   selectedOption: {},
   deselectButton: {
-    ariaLabel: (label) => 'Deselect Option',
+    ariaLabel: deselectLabel,
+    title: deselectLabel,
   },
   clearButton: {
     ariaLabel: 'Clear Selection',
+    title: 'Clear Selection',
   },
 }
 

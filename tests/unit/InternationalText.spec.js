@@ -25,7 +25,7 @@ describe('International Text', () => {
   it('renders default text for deselect.ariaLabel', () => {
     const Select = mountDefault({ value: 'one', multiple: true })
     expect(Select.find('.vs__deselect').attributes()['aria-label']).toBe(
-      'Deselect Option'
+      'Deselect one'
     )
   })
 })

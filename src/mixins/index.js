@@ -4,3 +4,5 @@ import pointer from './typeAheadPointer'
 import pointerScroll from './pointerScroll'
 
 export default { ajax, pointer, pointerScroll, i18n }
+
+// export const mixins = [ajax, i18n, pointer, pointerScroll]
