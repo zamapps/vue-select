@@ -64,8 +64,8 @@
           :disabled="disabled"
           type="button"
           class="vs__clear"
-          title="Clear Selected"
-          aria-label="Clear Selected"
+          :title="i18n.clearButton.title"
+          :aria-label="i18n.clearButton.ariaLabel"
           @click="clearSelection"
         >
           <component :is="childComponents.Deselect" />

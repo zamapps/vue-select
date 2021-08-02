@@ -1,25 +1,4 @@
-const deselectLabel = (label) => `Deselect ${label}`
-
-export const text = {
-  spinner: {
-    text: 'Loading...',
-  },
-  noOptions: {
-    text: 'Sorry, no matching options.',
-  },
-  search: {
-    ariaLabel: 'Search for options',
-  },
-  selectedOption: {},
-  deselectButton: {
-    ariaLabel: deselectLabel,
-    title: deselectLabel,
-  },
-  clearButton: {
-    ariaLabel: 'Clear Selection',
-    title: 'Clear Selection',
-  },
-}
+import { locale as english } from '../locales/en.js'
 
 /**
  * @this VueSelect
@@ -27,18 +6,18 @@ export const text = {
  */
 export default {
   props: {
-    text: {
+    locale: {
       type: Function,
       /**
        * @param text {Object}
-       * @return {*}
+       * @return {Object}
        */
       default: (text) => text,
     },
   },
   computed: {
     i18n() {
-      return this.text(text)
+      return this.locale(english)
     },
   },
 }
