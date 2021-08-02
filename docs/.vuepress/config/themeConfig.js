@@ -37,7 +37,7 @@ module.exports = {
         collapsable: false,
         children: [
           ['guide/accessibility', 'WAI-ARIA Spec'],
-          ['guide/localization', 'Localization / i18n'],
+          ['guide/localization', 'Localization'],
         ],
       },
       {

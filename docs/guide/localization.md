@@ -1,3 +1,5 @@
+# Localization / i18n
+
 # Translations <Badge text="v3.13.0+" />
 
 There are a number of strings used within the component that can all be translated. Out of the box,
@@ -8,8 +10,9 @@ in [`src/locales`](https://github.com/sagalbot/vue-select/tree/master/src/locale
 - [French](https://github.com/sagalbot/vue-select/tree/master/src/locales/fr.js)
 - [Spanish](https://github.com/sagalbot/vue-select/tree/master/src/locales/es.js)
 
-Translations can be set on for each component instance, or globally for all instances in your app.
-Both methods will use the `locale` prop to determine the text to be used throughout the component.
+Translations can be set individually for each component instance, or globally for all instances in
+your app. Both methods will use the `locale` prop to determine the text to be used throughout the
+component.
 
 **Locale Prop**
 
@@ -24,6 +27,8 @@ The object returned from the locale prop requires specific keys to be set. Below
 the english locale that ships with Vue Select:
 
 <<< @/../src/locales/en.js
+
+[View this file on GitHub ](https://github.com/sagalbot/vue-select/tree/master/src/locales/en.js)
 
 # Examples
 ---

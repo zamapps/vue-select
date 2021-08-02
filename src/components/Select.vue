@@ -138,8 +138,8 @@
 </template>
 
 <script>
+import { locale as english } from '../locales/en.js'
 import ajax from '../mixins/ajax.js'
-import i18n from '../mixins/i18n.js'
 import pointerScroll from '../mixins/pointerScroll.js'
 import typeAheadPointer from '../mixins/typeAheadPointer.js'
 import childComponents from './childComponents'
@@ -155,7 +155,7 @@ export default {
 
   directives: { appendToBody },
 
-  mixins: [pointerScroll, typeAheadPointer, ajax, i18n],
+  mixins: [pointerScroll, typeAheadPointer, ajax],
 
   props: {
     /**
@@ -191,6 +191,23 @@ export default {
       default() {
         return []
       },
+    },
+
+    /**
+     * The locale function receives the default english translations for the
+     * component. This allows you to override the whole object, or change
+     * just the values you need.
+     *
+     * @since 3.13.0
+     * @see https://vue-select.org/guide/localization.html
+     */
+    locale: {
+      type: Function,
+      /**
+       * @return {Object}
+       * @param localeStrings
+       */
+      default: (localeStrings) => localeStrings,
     },
 
     /**
@@ -660,6 +677,16 @@ export default {
   },
 
   computed: {
+    /**
+     * Return the strings that will be used throughout the
+     * component for labels, titles, text.
+     *
+     * @return {Object} locale
+     */
+    i18n() {
+      return this.locale(english)
+    },
+
     /**
      * Determine if the component needs to
      * track the state of values internally.
