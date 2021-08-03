@@ -205,7 +205,7 @@ export default {
       type: Function,
       /**
        * @return {Object}
-       * @param localeStrings
+       * @param {Object} localeStrings
        */
       default: (localeStrings) => localeStrings,
     },
