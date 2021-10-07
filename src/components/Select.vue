@@ -113,7 +113,7 @@
           }"
           :aria-selected="index === typeAheadPointer ? true : null"
           @mouseover="selectable(option) ? (typeAheadPointer = index) : null"
-          @mousedown.prevent.stop="selectable(option) ? select(option) : null"
+          @click.prevent.stop="selectable(option) ? select(option) : null"
         >
           <slot name="option" v-bind="normalizeOptionForSlot(option)">
             {{ getOptionLabel(option) }}
@@ -462,7 +462,11 @@ export default {
     filterBy: {
       type: Function,
       default(option, label, search) {
-        return (label || '').toLowerCase().indexOf(search.toLowerCase()) > -1
+        return (
+          (label || '')
+            .toLocaleLowerCase()
+            .indexOf(search.toLocaleLowerCase()) > -1
+        )
       },
     },
 
@@ -825,6 +829,7 @@ export default {
       return {
         'vs--open': this.dropdownOpen,
         'vs--single': !this.multiple,
+        'vs--multiple': this.multiple,
         'vs--searching': this.searching && !this.noDrop,
         'vs--searchable': this.searchable && !this.noDrop,
         'vs--unsearchable': !this.searchable,
