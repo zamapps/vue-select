@@ -354,6 +354,18 @@ label: {
 ```
 
 
+## loading
+
+ Show spinner if the component is in a loading state.
+
+```js
+loading: {
+	type: Boolean,
+	default: false
+},
+```
+
+
 ## maxHeight
 
 ::: warning Deprecated in `v2.x` & Removed in `v3.0`
