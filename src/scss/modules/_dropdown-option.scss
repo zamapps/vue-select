@@ -14,6 +14,11 @@
   color: $vs-state-active-color;
 }
 
+.vs__dropdown-option--deselect {
+  background: $vs-state-deselect-bg;
+  color: $vs-state-deselect-color;
+}
+
 .vs__dropdown-option--disabled {
   background: inherit;
   color: $vs-state-disabled-color;

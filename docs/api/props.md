@@ -163,6 +163,17 @@ createOption: {
 },
 ```
 
+## deselectFromDropdown <Badge text="v3.12.0+" />
+
+Determines whether the user can deselect an option by clicking 
+it from within the dropdown menu.
+
+```js
+deselectFromDropdown: {
+    type: Boolean,
+    default: false
+},
+```
 
 ## dir
 
