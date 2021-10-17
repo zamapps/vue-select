@@ -569,6 +569,18 @@ transition: {
 },
 ```
 
+## uid
+
+A unique identifier used to generate IDs and DOM attributes.
+Must be unique for every instance of the component.
+
+```js
+uid: {
+  type: [String, Number],
+  default: () => uniqueId(),
+},
+```
+
 
 ## value
 
