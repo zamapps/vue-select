@@ -4,13 +4,9 @@ jobs:
   test:
     runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 12
-
+      - uses: actions/checkout@v2
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        uses: bahmutov/npm-install@v1
 
       - name: Test with Coverage
         run: yarn test --coverage --coverageReporters=lcov
@@ -24,18 +20,15 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 12
-
+      - uses: actions/checkout@v2
       - name: Install dependencies
-        run: |
-          yarn install --frozen-lockfile
-          cd docs
-          yarn install --frozen-lockfile
+        uses: bahmutov/npm-install@v1
+        with:
+          working-directory: |
+            .
+            docs
 
       - name: Build Dist
         run: yarn build
