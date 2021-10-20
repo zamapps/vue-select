@@ -13,7 +13,7 @@ export const searchSubmit = (Wrapper, searchText = false) => {
   if (searchText) {
     Wrapper.vm.search = searchText
   }
-  Wrapper.findComponent({ ref: 'search' }).trigger('keydown.enter')
+  Wrapper.get('input').trigger('keydown.enter')
 }
 
 /**
@@ -29,18 +29,17 @@ export const selectTag = async (Wrapper, searchText) => {
   Wrapper.vm.search = searchText
   await Wrapper.vm.$nextTick()
 
-  Wrapper.findComponent({ ref: 'search' }).trigger('keydown.enter')
-  await Wrapper.vm.$nextTick()
+  await Wrapper.get('input').trigger('keydown.enter')
 }
 
 /**
  * Create a new VueSelect instance with
  * a provided set of props.
- * @param propsData
+ * @param props
  * @returns {Wrapper<Vue>}
  */
-export const selectWithProps = (propsData = {}) => {
-  return shallowMount(VueSelect, { propsData })
+export const selectWithProps = (props = {}) => {
+  return shallowMount(VueSelect, { props })
 }
 
 /**
@@ -51,7 +50,7 @@ export const selectWithProps = (propsData = {}) => {
  */
 export const mountDefault = (props = {}, options = {}) => {
   return shallowMount(VueSelect, {
-    propsData: {
+    props: {
       options: ['one', 'two', 'three'],
       ...props,
     },
@@ -66,13 +65,13 @@ export const mountDefault = (props = {}, options = {}) => {
  * @return {Vue | Element | Vue[] | Element[]}
  */
 export const mountWithoutTestUtils = (props = {}, options = {}) => {
-  return new Vue({
-    components: { VueSelect },
+  return createApp({
     render: (createEl) =>
       createEl('vue-select', {
         ref: 'select',
         props: { options: ['one', 'two', 'three'], ...props },
         ...options,
       }),
-  }).$mount().$refs.select
+    components: { VueSelect },
+  }).mount().$refs.select
 }
