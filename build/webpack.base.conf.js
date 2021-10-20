@@ -42,12 +42,7 @@ module.exports = {
       },
       {
         test: /\.s?css$/,
-        use: [
-          extractOrInjectStyles,
-          'css-loader',
-          'postcss-loader',
-          'sass-loader',
-        ],
+        use: [extractOrInjectStyles, 'css-loader', 'postcss-loader'],
       },
     ],
   },
