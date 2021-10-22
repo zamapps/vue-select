@@ -835,6 +835,8 @@ export default {
         'vs--open': this.dropdownOpen,
         'vs--single': !this.multiple,
         'vs--multiple': this.multiple,
+        'vs--empty': this.selectedValue.length === 0,
+        'vs--not-empty': this.selectedValue.length !== 0,
         'vs--searching': this.searching && !this.noDrop,
         'vs--searchable': this.searchable && !this.noDrop,
         'vs--unsearchable': !this.searchable,
