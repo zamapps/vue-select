@@ -48,6 +48,7 @@ $font-size: 1em;
 // Empty
 .vs--not-empty .vs__search {
     height: 0;
+    margin: 0;
 }
 .vs--not-empty .vs__search:focus {
     height: auto;
