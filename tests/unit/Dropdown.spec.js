@@ -31,19 +31,6 @@ describe('Toggling Dropdown', () => {
     expect(Select.vm.open).toEqual(true)
   })
 
-  it('should not close the dropdown when the el is clicked and enableMouseInputSearch is set to true', () => {
-    const Select = selectWithProps({
-      modelValue: [{ label: 'one' }],
-      options: [{ label: 'one' }],
-      enableMouseSearchInput: true,
-    })
-
-    Select.vm.toggleDropdown(clickEvent(Select.vm.$refs.search))
-    expect(Select.vm.open).toBeFalsy()
-    Select.vm.toggleDropdown(clickEvent(Select.vm.$el))
-    expect(Select.vm.open).toBeFalsy()
-  })
-
   it('should open the dropdown when the selected tag is clicked', () => {
     const Select = selectWithProps({
       modelValue: [{ label: 'one' }],
