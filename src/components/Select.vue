@@ -1,5 +1,5 @@
-<style lang="scss">
-@import '../scss/vue-select.scss';
+<style>
+@import '../css/vue-select.css';
 </style>
 
 <template>
@@ -33,7 +33,6 @@
             </slot>
             <button
               v-if="multiple"
-              ref="deselectButtons"
               :ref="(el) => (deselectButtons[i] = el)"
               :disabled="disabled"
               type="button"
@@ -119,9 +118,9 @@
           </slot>
         </li>
         <li v-if="filteredOptions.length === 0" class="vs__no-options">
-          <slot name="no-options" v-bind="scope.noOptions"
-            >Sorry, no matching options.</slot
-          >
+          <slot name="no-options" v-bind="scope.noOptions">
+            Sorry, no matching options.
+          </slot>
         </li>
         <slot name="list-footer" v-bind="scope.listFooter" />
       </ul>
@@ -137,13 +136,13 @@
 </template>
 
 <script>
-import pointerScroll from '@/mixins/pointerScroll.js'
-import typeAheadPointer from '@/mixins/typeAheadPointer.js'
-import ajax from '@/mixins/ajax.js'
-import childComponents from '@/components/childComponents.js'
-import appendToBody from '@/directives/appendToBody.js'
-import sortAndStringify from '@/utility/sortAndStringify.js'
-import uniqueId from '@/utility/uniqueId.js'
+import pointerScroll from '../mixins/pointerScroll'
+import typeAheadPointer from '../mixins/typeAheadPointer'
+import ajax from '../mixins/ajax'
+import childComponents from './childComponents'
+import appendToBody from '../directives/appendToBody'
+import sortAndStringify from '../utility/sortAndStringify'
+import uniqueId from '../utility/uniqueId'
 
 /**
  * @name VueSelect
@@ -723,7 +722,7 @@ export default {
         value = this.$data._value
       }
 
-      if (value) {
+      if (value !== undefined && value !== null) {
         return [].concat(value)
       }
 
@@ -746,7 +745,7 @@ export default {
      * @returns {HTMLInputElement}
      */
     searchEl() {
-      return this.$slots['search']
+      return !!this.$slots['search']
         ? this.$refs.selectedOptions.querySelector(
             this.searchInputQuerySelector
           )

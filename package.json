@@ -1,6 +1,6 @@
 {
   "name": "vue-select",
-  "version": "4.0.0-beta.2",
+  "version": "4.0.0-beta.3",
   "description": "Everything you wish the HTML <select> element could do, wrapped up into a lightweight, extensible Vue component.",
   "author": "Jeff Sagal <sagalbot@gmail.com>",
   "homepage": "https://vue-select.org",
@@ -45,7 +45,7 @@
     "autoprefixer": "^10.4.2",
     "bundlewatch": "^0.2.5",
     "commitizen": "^4.0.3",
-    "coveralls": "^3.0.2",
+    "coveralls": "^3.1.1",
     "cross-env": "^5.2.0",
     "cz-conventional-changelog": "3.1.0",
     "eslint": "^8.5.0",
@@ -107,7 +107,7 @@
       {
         "path": "./dist/vue-select.css",
         "compression": "none",
-        "maxSize": "6 KB"
+        "maxSize": "8 KB"
       }
     ]
   }
