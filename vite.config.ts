@@ -11,7 +11,6 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url)),
-            '~tests': fileURLToPath(new URL('./tests', import.meta.url)),
         },
     },
     build: {
@@ -23,6 +22,11 @@ export default defineConfig({
         rollupOptions: {
             external: ['vue'],
             output: { globals: { vue: 'Vue' } },
+        },
+    },
+    test: {
+        coverage: {
+            reporter: ['lcov'],
         },
     },
 })

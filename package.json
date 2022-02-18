@@ -31,6 +31,7 @@
         "build": "vue-tsc --noEmit && vite build",
         "preview": "vite preview --port 5050",
         "test": "vitest --environment jsdom",
+        "coverage": "vitest run --environment jsdom --coverage",
         "typecheck": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
         "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
     },
@@ -54,6 +55,7 @@
         "@vue/tsconfig": "^0.1.3",
         "autoprefixer": "^10.4.2",
         "bundlewatch": "^0.2.5",
+        "c8": "^7.11.0",
         "commitizen": "^4.0.3",
         "coveralls": "^3.1.1",
         "cross-env": "^5.2.0",
@@ -70,39 +72,6 @@
         "vue": "^3.2.20",
         "vue-tsc": "^0.31.1"
     },
-    "jest": {
-        "moduleFileExtensions": [
-            "js",
-            "jsx",
-            "json",
-            "vue"
-        ],
-        "transform": {
-            "^.+\\.vue$": "vue-jest",
-            ".+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$": "jest-transform-stub",
-            "^.+\\.jsx?$": "babel-jest"
-        },
-        "moduleNameMapper": {
-            "^@/(.*)$": "<rootDir>/src/$1"
-        },
-        "snapshotSerializers": [
-            "jest-serializer-vue"
-        ],
-        "testMatch": [
-            "**/tests/unit/**/*.spec.(js|jsx|ts|tsx)|**/__tests__/*.(js|jsx|ts|tsx)"
-        ],
-        "testURL": "http://localhost/",
-        "collectCoverage": true,
-        "collectCoverageFrom": [
-            "src/mixins/*.js",
-            "!src/mixins/index.js",
-            "src/components/Select.vue",
-            "!**/node_modules/**"
-        ],
-        "coverageReporters": [
-            "text"
-        ]
-    },
     "config": {
         "commitizen": {
             "path": "./node_modules/cz-conventional-changelog"
@@ -111,14 +80,19 @@
     "bundlewatch": {
         "files": [
             {
-                "path": "./dist/vue-select.js",
-                "compression": "none",
-                "maxSize": "23 KB"
+                "path": "./dist/vue-select.es.js",
+                "compression": "gzip",
+                "maxSize": "8 KB"
+            },
+            {
+                "path": "./dist/vue-select.umd.js",
+                "compression": "gzip",
+                "maxSize": "7 KB"
             },
             {
                 "path": "./dist/vue-select.css",
-                "compression": "none",
-                "maxSize": "8 KB"
+                "compression": "gzip",
+                "maxSize": "2 KB"
             }
         ]
     }
