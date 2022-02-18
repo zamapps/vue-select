@@ -34,7 +34,7 @@
             <button
               v-if="multiple"
               ref="deselectButtons"
-              :ref="el => deselectButtons[i] = el"
+              :ref="(el) => (deselectButtons[i] = el)"
               :disabled="disabled"
               type="button"
               class="vs__deselect"
@@ -137,13 +137,13 @@
 </template>
 
 <script>
-import pointerScroll from '../mixins/pointerScroll'
-import typeAheadPointer from '../mixins/typeAheadPointer'
-import ajax from '../mixins/ajax'
-import childComponents from './childComponents'
-import appendToBody from '../directives/appendToBody'
-import sortAndStringify from '../utility/sortAndStringify'
-import uniqueId from '../utility/uniqueId'
+import pointerScroll from '@/mixins/pointerScroll.js'
+import typeAheadPointer from '@/mixins/typeAheadPointer.js'
+import ajax from '@/mixins/ajax.js'
+import childComponents from '@/components/childComponents.js'
+import appendToBody from '@/directives/appendToBody.js'
+import sortAndStringify from '@/utility/sortAndStringify.js'
+import uniqueId from '@/utility/uniqueId.js'
 
 /**
  * @name VueSelect
@@ -694,7 +694,7 @@ export default {
       pushedTags: [],
       // eslint-disable-next-line vue/no-reserved-keys
       _value: [], // Internal value managed by Vue Select if no `value` prop is passed
-      deselectButtons: []
+      deselectButtons: [],
     }
   },
 
@@ -746,7 +746,7 @@ export default {
      * @returns {HTMLInputElement}
      */
     searchEl() {
-      return !!this.$slots['search']
+      return this.$slots['search']
         ? this.$refs.selectedOptions.querySelector(
             this.searchInputQuerySelector
           )
