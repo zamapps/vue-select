@@ -1,4 +1,5 @@
-import { mountDefault } from '../helpers'
+import { it, describe, expect } from 'vitest'
+import { mountDefault } from '../helpers.js'
 
 describe('Search Slot Scope', () => {
   /**
