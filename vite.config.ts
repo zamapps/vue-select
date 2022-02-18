@@ -1,3 +1,4 @@
+import { resolve } from 'path'
 import { fileURLToPath, URL } from 'url'
 
 import { defineConfig } from 'vite'
@@ -10,6 +11,17 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url)),
+        },
+    },
+    build: {
+        lib: {
+            entry: resolve(__dirname, 'src/index.js'),
+            name: 'vue-select',
+            fileName: (format) => `vue-select.${format}.js`,
+        },
+        rollupOptions: {
+            external: ['vue'],
+            output: { globals: { vue: 'Vue' } },
         },
     },
 })
