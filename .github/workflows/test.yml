@@ -14,7 +14,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Test with Coverage
-        run: yarn coverage
+        run: yarn test:coverage
 
       - name: ESLint
         run: yarn eslint
