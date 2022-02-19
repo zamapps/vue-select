@@ -13,7 +13,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Test with Coverage
-        run: yarn test --coverage --coverageReporters=lcov
+        run: yarn coverage
 
       - name: ESLint
         run: yarn eslint
