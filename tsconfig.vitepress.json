@@ -1,0 +1,9 @@
+{
+    "extends": "@vue/tsconfig/tsconfig.web.json",
+    "include": ["./docs/.vitepress/**/*"],
+    "exclude": [],
+    "compilerOptions": {
+        "composite": true,
+        "baseUrl": "."
+    }
+}

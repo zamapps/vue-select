@@ -1,3 +1,9 @@
+<script setup>
+import vSelect from 'vue-select';
+import ReducerNestedValue from '@/components/ReducerNestedValue.vue';
+import ReducedWithNoMatchingOption from '@/components/ReducedWithNoMatchingOption.vue';
+</script>
+
 ## Getting and Setting
 
 ### `v-model`
@@ -7,7 +13,6 @@ vue-select takes advantage of the `v-model` syntax to sync values with a parent.
 syntax works with primitives and objects.
 
 ```html
-
 <v-select v-model="selected" />
 ```
 
@@ -29,7 +34,6 @@ The `value` prop lets vue-select know what value is currently selected. It will 
 numbers or objects. If you're using a `multiple` v-select, you'll want to pass an array.
 
 ```html
-
 <v-select :value="selected" />
 ```
 
@@ -49,7 +53,6 @@ can bind the selected value with `:value="$store.myValue"`, and use the `input` 
 mutation, or dispatch an action – or anything else you might need to do when the selection changes.
 
 ```html
-
 <v-select :value="$store.myValue" @input="setSelected" />
 ```
 
@@ -69,7 +72,6 @@ By default, vue-select supports choosing a single value. If you need multiple va
 is true, `v-model` and `value` must be an array.
 
 ```html
-
 <v-select multiple v-model="selected" :options="['Canada','United States']" />
 ```
 
@@ -96,7 +98,6 @@ If we want to display the `country`, but return the `code` to `v-model`, we can 
 prop to receive only the data that's required.
 
  ```html
-
 <v-select :options="options" :reduce="country => country.code" label="country" />
  ```
 
@@ -115,11 +116,10 @@ The `reduce` property also works well when you have a deeply nested value:
  ```
 
  ```html
-
 <v-select :options="options" :reduce="country => country.meta.code" label="country" />
  ```
 
- <reducer-nested-value />
+<ReducerNestedValue />
 
 ## Caveats with `reduce`
 
@@ -129,7 +129,7 @@ value, but the complete option object is not present in the `options` array.
 
 <ReducedWithNoMatchingOption />
 
-<<< @/.vuepress/components/ReducedWithNoMatchingOption.vue
+<<< @/.vitepress/components/ReducedWithNoMatchingOption.vue
 
 In the example above, the component was supplied with an ID that doesn't exist in the `options`
 array. When `value` changes, Vue Select searches the supplied options, running each one
@@ -148,7 +148,6 @@ exist in the `options` array.
 To allow input that's not present within the options, set the `taggable` prop to true.
 
 ```html
-
 <v-select taggable multiple />
 ```
 
@@ -157,7 +156,6 @@ To allow input that's not present within the options, set the `taggable` prop to
 If you want added tags to be pushed to the options array, set `push-tags` to true.
 
 ```html
-
 <v-select taggable multiple push-tags />
 ```
 
@@ -193,8 +191,7 @@ const options = [
 ];
 ```
 
-```html
-
+```vue
 <v-select
     taggable
     multiple
@@ -203,7 +200,4 @@ const options = [
     :create-option="book => ({ title: book, author: { firstName: '', lastName: '' } })"
     :reduce="book => `${book.author.firstName} ${book.author.lastName}`"
 />
-```  
-
-
-
+```

@@ -1,3 +1,7 @@
+<script setup>
+import InfiniteScroll from '@/components/InfiniteScroll.vue'
+</script>
+
 Vue Select doesn't ship with first party support for infinite scroll, but it's possible to implement
 by hooking into the `open`, `close`, and `search` events, along with the `filterable` prop, and the
 `list-footer` slot.
@@ -20,4 +24,4 @@ the scroll position.
 
 <InfiniteScroll />
 
-<<< @/.vuepress/components/InfiniteScroll.vue
+<<< @/.vitepress/components/InfiniteScroll.vue

@@ -24,7 +24,7 @@ about [CSS Custom Properties.](https://developer.mozilla.org/en-US/docs/Web/CSS/
 
 <CssVariables style="margin-top: 1rem;" />
 
-<<< @/.vuepress/components/CssVariables.vue
+<<< @/.vitepress/components/CssVariables.vue
 
 ### Available CSS Variables <Badge type="primary">3.18+</Badge>
 
@@ -62,7 +62,7 @@ instances of Vue Select, or add your own classname if you just want to affect on
 
 <CssSpecificity />  
 
-<<< @/.vuepress/components/CssSpecificity.vue
+<<< @/.vitepress/components/CssSpecificity.vue
 
 ## Dropdown Transition
 
@@ -74,7 +74,6 @@ transition name is `vs__fade`. There's a couple ways to override or change this 
    negate the default CSS. If you want to remove it entirely, you can set it to an empty string.
 
 ```html
-
 <v-select transition="" />
 ```
 

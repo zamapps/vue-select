@@ -23,8 +23,9 @@
     "license": "MIT",
     "prepare": "npm run build",
     "scripts": {
-        "dev:docs": "cd docs && yarn serve",
-        "build:docs": "cd docs && yarn build",
+        "docs:dev": "vitepress dev docs",
+        "docs:build": "vitepress build docs",
+        "docs:serve": "vitepress serve docs",
         "semantic-release": "semantic-release",
         "commit": "git-cz",
         "dev": "vite",

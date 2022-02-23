@@ -16,4 +16,4 @@ You can use the `filter` and `filterBy` props to hook right into something like
 
 <FuseFilter />
 
-<<< @/.vuepress/components/FuseFilter.vue
+<<< @/.vitepress/components/FuseFilter.vue

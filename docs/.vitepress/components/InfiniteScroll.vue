@@ -15,6 +15,7 @@
 </template>
 
 <script>
+import vSelect from 'vue-select'
 import countries from '../data/countries'
 
 export default {

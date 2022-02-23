@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   title: 'Vue Select | VueJS Select2/Chosen Component',
   description:
     'Everything you wish the HTML select element could do, wrapped up into a lightweight, extensible Vue component.',

@@ -3,10 +3,12 @@
 </template>
 
 <script>
+import vSelect from 'vue-select'
 import countryCodes from '../data/countryCodes'
 
 export default {
   name: 'CountrySelect',
+  components: { vSelect },
   data: () => ({
     options: countryCodes,
   }),

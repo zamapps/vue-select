@@ -29,4 +29,4 @@ in your own apps.
 
 <BetterNoOptions />
 
-<<< @/.vuepress/components/BetterNoOptions.vue
+<<< @/.vitepress/components/BetterNoOptions.vue

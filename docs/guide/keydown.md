@@ -9,7 +9,7 @@
  
 <TagOnComma /> 
  
-<<< @/.vuepress/components/TagOnComma.vue
+<<< @/.vitepress/components/TagOnComma.vue
 
 ## mapKeyDown <Badge text="v3.3.0+" />
 
@@ -69,5 +69,5 @@ This is example listens for the `@` key, and autocompletes an email address with
 
 <CustomHandlers />
 
-<<< @/.vuepress/components/CustomHandlers.vue
+<<< @/.vitepress/components/CustomHandlers.vue
 

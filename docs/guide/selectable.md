@@ -31,7 +31,7 @@ This object will be passed to `selectable`, so we can check if the author should
 
 <UnselectableExample />
 
-<<< @/.vuepress/components/UnselectableExample.vue{6}
+<<< @/.vitepress/components/UnselectableExample.vue{6}
 
 ## Limiting the Number of Selections
 
@@ -41,4 +41,4 @@ of three books.
 
 <LimitSelectionQuantity />
 
-<<< @/.vuepress/components/LimitSelectionQuantity.vue{8}
+<<< @/.vitepress/components/LimitSelectionQuantity.vue{8}

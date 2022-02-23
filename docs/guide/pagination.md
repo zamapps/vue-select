@@ -15,4 +15,4 @@ You can use the `filterable` boolean to turn off Vue Select's filtering, and the
 
 <Paginated />
 
-<<< @/.vuepress/components/Paginated.vue
+<<< @/.vitepress/components/Paginated.vue

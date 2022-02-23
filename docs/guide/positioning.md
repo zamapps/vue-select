@@ -30,4 +30,4 @@ popper to calculate positioning for us.
 Check out the [Popper Docs](https://popper.js.org/docs/v2/modifiers/) to see the full `modifiers`
 API being used below.
 
-<<< @/.vuepress/components/PositionedWithPopper.vue{25-59}
+<<< @/.vitepress/components/PositionedWithPopper.vue{25-59}

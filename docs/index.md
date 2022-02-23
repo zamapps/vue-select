@@ -1,3 +1,8 @@
+<script setup>
+import SponsorBanner from '.vitepress/components/SponsorBanner.vue';
+import CountrySelect from '.vitepress/components/CountrySelect.vue';
+</script>
+
 <SponsorBanner />
 
 # Vue Select
@@ -18,7 +23,7 @@ lightweight as possible, while maintaining high standards for accessibility,
 developer experience, and customization.
 
 <div style="max-width:25rem; margin: 0 auto; padding: 1rem 0;">
-  <country-select />  
+  <CountrySelect />  
 </div>
 
 Vue Select aims to be as lightweight as possible, while maintaining high standards for accessibility,
