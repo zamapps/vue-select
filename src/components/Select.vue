@@ -1041,6 +1041,9 @@ export default {
       if (this.clearSearchOnSelect) {
         this.search = ''
       }
+      if (this.noDrop && this.multiple) {
+        this.$nextTick(() => this.$refs.search.focus())
+      }
     },
 
     /**
