@@ -65,7 +65,9 @@
             aria-label="Clear Selected"
             @click="clearSelection"
           >
-            <component :is="childComponents.Deselect" />
+            <slot name="clear-icon">
+              <component :is="childComponents.Deselect" />
+            </slot>
           </button>
         </slot>
 
@@ -786,7 +788,6 @@ export default {
           searching: this.searching,
         },
         openIndicator: {
-          dropdownOpen: this.dropdownOpen,
           attributes: {
             ref: 'openIndicator',
             role: 'presentation',
