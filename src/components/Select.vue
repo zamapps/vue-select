@@ -1,7 +1,3 @@
-<style>
-@import '../css/vue-select.css';
-</style>
-
 <template>
   <div :dir="dir" class="v-select" :class="stateClasses">
     <slot name="header" v-bind="scope.header" />
@@ -13,7 +9,7 @@
       :aria-expanded="dropdownOpen.toString()"
       :aria-owns="`vs${uid}__listbox`"
       aria-label="Search for option"
-      @mousedown="toggleDropdown($event)"
+      @click.stop.prevent="toggleDropdown($event)"
     >
       <div ref="selectedOptions" class="vs__selected-options">
         <slot
@@ -41,7 +37,9 @@
               :aria-label="`Deselect ${getOptionLabel(option)}`"
               @click="deselect(option)"
             >
-              <component :is="childComponents.Deselect" />
+              <slot name="deselect-icon">
+                <component :is="childComponents.Deselect" />
+              </slot>
             </button>
           </span>
         </slot>
@@ -56,7 +54,7 @@
       </div>
 
       <div ref="actions" class="vs__actions">
-        <slot name="clear-button" v-bind="{ clearSelection, disabled, showClearButton }">
+        <slot name="clear-button" v-bind="{ clearSelection }">
           <button
             v-show="showClearButton"
             ref="clearButton"
@@ -71,7 +69,11 @@
           </button>
         </slot>
 
-        <slot name="open-indicator" v-bind="scope.openIndicator">
+        <slot
+          v-if="!multiple"
+          name="open-indicator"
+          v-bind="scope.openIndicator"
+        >
           <component
             :is="childComponents.OpenIndicator"
             v-if="!noDrop"
@@ -784,6 +786,7 @@ export default {
           searching: this.searching,
         },
         openIndicator: {
+          dropdownOpen: this.dropdownOpen,
           attributes: {
             ref: 'openIndicator',
             role: 'presentation',
@@ -897,9 +900,7 @@ export default {
      * @return {Boolean}
      */
     showClearButton() {
-      return (
-        !this.multiple && this.clearable && !this.open && !this.isValueEmpty
-      )
+      return this.clearable && !this.open && !this.isValueEmpty;
     },
   },
 
